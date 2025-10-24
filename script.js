@@ -95,34 +95,68 @@ async function fetchPokemonData() {
 
         pokemonData = await Promise.all(pokemonPromises);
         createPokemonGrid();
-        loadGameState();
+        await loadGameState();
     } catch (error) {
         console.error('Error fetching Pokémon data:', error);
     }
 }
 
-function loadGameState() {
+async function loadGameState() {
     const revealedPokemonIds = JSON.parse(localStorage.getItem('revealedPokemon')) || [];
     score = revealedPokemonIds.length;
     scoreCounter.textContent = `Score: ${score} / 151`;
 
-    revealedPokemonIds.forEach(id => {
-        const pokemon = pokemonData.find(p => p.id === id);
+    for (const id of revealedPokemonIds) {
+        let pokemon = pokemonData.find(p => p.id === id);
+
+        if (!pokemon && id > 151 && id <= 251) {
+            try {
+                const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+                if (!response.ok) continue;
+                const pokemonDetails = await response.json();
+
+                const shinyPokemonIds = JSON.parse(localStorage.getItem('shinyPokemon')) || [];
+                let isShiny = shinyPokemonIds.includes(pokemonDetails.id);
+
+                pokemon = {
+                    name: pokemonDetails.name,
+                    id: pokemonDetails.id,
+                    image: `https://raw.githubusercontent.com/jnovack/pokemon-svg/master/svg/${pokemonDetails.id}.svg`,
+                    isShiny: isShiny,
+                    types: pokemonDetails.types.map(typeInfo => typeInfo.type.name),
+                    height: pokemonDetails.height,
+                    weight: pokemonDetails.weight,
+                    abilities: pokemonDetails.abilities
+                };
+                pokemonData.push(pokemon);
+                pokemonData.sort((a, b) => a.id - b.id);
+
+                const tile = document.createElement('div');
+                tile.classList.add('pokemon-tile');
+                tile.dataset.pokemonId = pokemon.id;
+
+                const tiles = Array.from(pokemonGrid.children);
+                const nextPokemonTile = tiles.find(t => parseInt(t.dataset.pokemonId) > pokemon.id);
+
+                if (nextPokemonTile) {
+                    pokemonGrid.insertBefore(tile, nextPokemonTile);
+                } else {
+                    pokemonGrid.appendChild(tile);
+                }
+
+            } catch (error) {
+                console.error(`Error fetching revealed Gen 2 Pokémon with id ${id}:`, error);
+                continue;
+            }
+        }
+
         if (pokemon) {
             const tile = document.querySelector(`[data-pokemon-id='${pokemon.id}']`);
-            tile.innerHTML = `<img src="${pokemon.image}" alt="${pokemon.name}">`;
-            tile.classList.add('revealed');
-            if (pokemon.isShiny) {
-                tile.classList.add('shiny');
+            if (tile) {
+                revealPokemon(pokemon, tile);
             }
-            if (pokemon.types.length === 1) {
-                tile.style.backgroundColor = typeColors[pokemon.types[0]];
-            } else {
-                tile.style.background = `linear-gradient(to right, ${typeColors[pokemon.types[0]]}, ${typeColors[pokemon.types[1]]})`;
-            }
-            pokemon.types.forEach(type => tile.classList.add(type));
         }
-    });
+    }
 }
 
 function createPokemonGrid() {
@@ -135,6 +169,20 @@ function createPokemonGrid() {
     }
 }
 
+function revealPokemon(pokemon, tile) {
+    tile.innerHTML = `<img src="${pokemon.image}" alt="${pokemon.name}">`;
+    tile.classList.add('revealed');
+    if (pokemon.isShiny) {
+        tile.classList.add('shiny');
+    }
+    if (pokemon.types.length === 1) {
+        tile.style.backgroundColor = typeColors[pokemon.types[0]];
+    } else {
+        tile.style.background = `linear-gradient(to right, ${typeColors[pokemon.types[0]]}, ${typeColors[pokemon.types[1]]})`;
+    }
+    pokemon.types.forEach(type => tile.classList.add(type));
+}
+
 function saveGameState() {
     const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')].map(tile => parseInt(tile.dataset.pokemonId));
     localStorage.setItem('revealedPokemon', JSON.stringify(revealedPokemonIds));
@@ -144,7 +192,7 @@ function saveGameState() {
     localStorage.setItem('shinyPokemon', JSON.stringify(shinyPokemonIds));
 }
 
-pokemonInput.addEventListener('keydown', (event) => {
+pokemonInput.addEventListener('keydown', async (event) => {
     if (event.key === 'Enter') {
         const guessedName = pokemonInput.value.toLowerCase();
         const normalizedGuessedName = normalizeName(guessedName);
@@ -202,16 +250,7 @@ pokemonInput.addEventListener('keydown', (event) => {
         if (pokemon) {
             almostCorrectPokemon = null;
             const tile = document.querySelector(`[data-pokemon-id='${pokemon.id}']`);
-            tile.innerHTML = `<img src="${pokemon.image}" alt="${pokemon.name}">`;
-            tile.classList.add('revealed');
-            if (pokemon.isShiny) {
-                tile.classList.add('shiny');
-            }
-            if (pokemon.types.length === 1) {
-                tile.style.backgroundColor = typeColors[pokemon.types[0]];
-            } else {
-                tile.style.background = `linear-gradient(to right, ${typeColors[pokemon.types[0]]}, ${typeColors[pokemon.types[1]]})`;
-            }
+            revealPokemon(pokemon, tile);
             feedback.textContent = 'Correct!';
             feedback.className = 'correct';
             score++;
@@ -223,30 +262,90 @@ pokemonInput.addEventListener('keydown', (event) => {
                 audio.play();
             }
         } else {
-            if (almostCorrectPokemon) {
-                feedback.textContent = `The correct spelling was ${almostCorrectPokemon.name}!`;
-                feedback.className = 'incorrect';
-                almostCorrectPokemon = null;
-            } else {
-                const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')].map(tile => parseInt(tile.dataset.pokemonId));
-                const unrevealedPokemon = pokemonData.filter(p => !revealedPokemonIds.includes(p.id));
-                let foundAlmostCorrect = false;
-                for (const p of unrevealedPokemon) {
-                    if (levenshteinDistance(normalizedGuessedName, normalizeName(p.name)) <= 2) {
-                        almostCorrectPokemon = p;
-                        feedback.textContent = 'You are very close! Almost there!';
-                        feedback.className = 'incorrect';
-                        foundAlmostCorrect = true;
-                        break;
+            let foundGen2Pokemon = false;
+            try {
+                const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${normalizedGuessedName}`);
+                if (response.ok) {
+                    const pokemonDetails = await response.json();
+                    if (pokemonDetails.id > 151 && pokemonDetails.id <= 251) {
+                        foundGen2Pokemon = true;
+                        const shinyPokemonIds = JSON.parse(localStorage.getItem('shinyPokemon')) || [];
+                        let isShiny = shinyPokemonIds.includes(pokemonDetails.id);
+                        if (!localStorage.getItem('shinyPokemon')) {
+                            isShiny = Math.random() < 1 / 150;
+                        }
+
+                        const newPokemon = {
+                            name: pokemonDetails.name,
+                            id: pokemonDetails.id,
+                            image: `https://raw.githubusercontent.com/jnovack/pokemon-svg/master/svg/${pokemonDetails.id}.svg`,
+                            isShiny: isShiny,
+                            types: pokemonDetails.types.map(typeInfo => typeInfo.type.name),
+                            height: pokemonDetails.height,
+                            weight: pokemonDetails.weight,
+                            abilities: pokemonDetails.abilities
+                        };
+
+                        pokemonData.push(newPokemon);
+                        pokemonData.sort((a, b) => a.id - b.id);
+
+                        const tile = document.createElement('div');
+                        tile.classList.add('pokemon-tile');
+                        tile.dataset.pokemonId = newPokemon.id;
+
+                        const tiles = Array.from(pokemonGrid.children);
+                        const nextPokemonTile = tiles.find(t => parseInt(t.dataset.pokemonId) > newPokemon.id);
+
+                        if (nextPokemonTile) {
+                            pokemonGrid.insertBefore(tile, nextPokemonTile);
+                        } else {
+                            pokemonGrid.appendChild(tile);
+                        }
+
+                        revealPokemon(newPokemon, tile);
+
+                        feedback.textContent = 'Correct!';
+                        feedback.className = 'correct';
+                        score++;
+                        scoreCounter.textContent = `Score: ${score} / 151`;
+                        saveGameState();
+                        if (!isMuted) {
+                            const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${newPokemon.name}.mp3`;
+                            const audio = new Audio(cryUrl);
+                            audio.play();
+                        }
                     }
                 }
-                if (!foundAlmostCorrect) {
-                    feedback.textContent = 'Wrong!';
-                    feedback.className = 'incorrect';
-                }
+            } catch (error) {
+                console.error("Error fetching gen 2 pokemon", error);
             }
-            pokemonInput.classList.add('shake');
-            setTimeout(() => pokemonInput.classList.remove('shake'), 500);
+
+            if (!foundGen2Pokemon) {
+                if (almostCorrectPokemon) {
+                    feedback.textContent = `The correct spelling was ${almostCorrectPokemon.name}!`;
+                    feedback.className = 'incorrect';
+                    almostCorrectPokemon = null;
+                } else {
+                    const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')].map(tile => parseInt(tile.dataset.pokemonId));
+                    const unrevealedPokemon = pokemonData.filter(p => !revealedPokemonIds.includes(p.id));
+                    let foundAlmostCorrect = false;
+                    for (const p of unrevealedPokemon) {
+                        if (levenshteinDistance(normalizedGuessedName, normalizeName(p.name)) <= 2) {
+                            almostCorrectPokemon = p;
+                            feedback.textContent = 'You are very close! Almost there!';
+                            feedback.className = 'incorrect';
+                            foundAlmostCorrect = true;
+                            break;
+                        }
+                    }
+                    if (!foundAlmostCorrect) {
+                        feedback.textContent = 'Wrong!';
+                        feedback.className = 'incorrect';
+                    }
+                }
+                pokemonInput.classList.add('shake');
+                setTimeout(() => pokemonInput.classList.remove('shake'), 500);
+            }
         }
 
         pokemonInput.value = '';
