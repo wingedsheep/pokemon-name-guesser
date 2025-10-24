@@ -3,6 +3,7 @@ const pokemonInput = document.getElementById('pokemon-input');
 const feedback = document.getElementById('feedback');
 const muteButton = document.getElementById('mute-button');
 const hintButton = document.getElementById('hint-button');
+const resetButton = document.getElementById('reset-button');
 const modal = document.getElementById('pokedex-modal');
 const closeButton = document.querySelector('.close-button');
 
@@ -36,9 +37,23 @@ async function fetchPokemonData() {
 
         pokemonData = await Promise.all(pokemonPromises);
         createPokemonGrid();
+        loadRevealedPokemon();
     } catch (error) {
         console.error('Error fetching Pokémon data:', error);
     }
+}
+
+function loadRevealedPokemon() {
+    const revealedPokemonIds = JSON.parse(localStorage.getItem('revealedPokemon')) || [];
+    revealedPokemonIds.forEach(id => {
+        const pokemon = pokemonData.find(p => p.id === id);
+        if (pokemon) {
+            const tile = document.querySelector(`[data-pokemon-id='${pokemon.id}']`);
+            tile.innerHTML = `<img src="${pokemon.image}" alt="${pokemon.name}">`;
+            tile.classList.add('revealed');
+            pokemon.types.forEach(type => tile.classList.add(type));
+        }
+    });
 }
 
 function createPokemonGrid() {
@@ -49,6 +64,11 @@ function createPokemonGrid() {
         tile.dataset.pokemonId = i;
         pokemonGrid.appendChild(tile);
     }
+}
+
+function saveRevealedPokemon() {
+    const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')].map(tile => parseInt(tile.dataset.pokemonId));
+    localStorage.setItem('revealedPokemon', JSON.stringify(revealedPokemonIds));
 }
 
 pokemonInput.addEventListener('keydown', (event) => {
@@ -65,6 +85,7 @@ pokemonInput.addEventListener('keydown', (event) => {
             pokemon.types.forEach(type => tile.classList.add(type));
             feedback.textContent = 'Correct!';
             feedback.className = 'correct';
+            saveRevealedPokemon();
             if (!isMuted) {
                 const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${pokemon.name}.mp3`;
                 const audio = new Audio(cryUrl);
@@ -116,6 +137,11 @@ hintButton.addEventListener('click', () => {
         feedback.className = '';
     }
     setTimeout(() => feedback.textContent = '', 3000);
+});
+
+resetButton.addEventListener('click', () => {
+    localStorage.removeItem('revealedPokemon');
+    location.reload();
 });
 
 muteButton.addEventListener('click', () => {
