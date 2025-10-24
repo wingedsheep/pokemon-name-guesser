@@ -80,7 +80,8 @@ async function fetchPokemonData() {
             };
         });
 
-        pokemonData = await Promise.all(pokemonPromises);
+        window.fetchPokemonDataPromise = Promise.all(pokemonPromises);
+        pokemonData = await window.fetchPokemonDataPromise;
         createPokemonGrid();
         loadGameState();
     } catch (error) {
@@ -110,6 +111,33 @@ function loadGameState() {
             pokemon.types.forEach(type => tile.classList.add(type));
         }
     });
+
+    if (localStorage.getItem('missingNoRevealed') === 'true') {
+        const missingNo = {
+            name: 'MissingNo.',
+            id: 0,
+            image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzAwMCIvPgogIDxyZWN0IHg9IjEwIiB5PSIxMCIgd2lkdGg9IjIwIiBoZWlnaHQ9IjcwIiBmaWxsPSIjZmYwMGZmIi8+CiAgPHJlY3QgeD0iNDAiIHk9IjIwIiB3aWR0aD0iMTAiIGhlaWdodD0iNTAiIGZpbGw9IiMwMGZmZmYiLz4KICA8cGF0aCBkPSJNIDYwIDEwIEwgNzAgNTAgTCA2MCA5MCIgc3Ryb2tlPSIjZmYwMDAwIiBzdHJva2Utd2lkdGg9IjUiIGZpbGw9Im5vbmUiLz4KICA8cmVjdCB4PSI4MCIgeT0iMTAiIHdpZHRoPSIxMCIgaGVpZ2h0PSI4MCIgZmlsbD0iIzAwZmYwMCIvPgogIDxyZWN0IHg9IjUiIHk9IjMwIiB3aWR0aD0iOTAiIGhlaWdodD0iNSIgZmlsbD0iI2ZmZmZmZiIgc3R5bGU9Im1peC1ibGVuZC1tb2RlOiBkaWZmZXJlbmNlOyIvPgogIDxyZWN0IHg9IjUiIHk9IjYwIiB3aWR0aD0iOTAiIGhlaWdodD0iNSIgZmlsbD0iI2ZmZmZmZiIgc3R5bGU9Im1peC1ibGVuZC1tb2RlOiBkaWZmZXJlbmNlOyIvPgo8L3N2Zz4K',
+            isShiny: false,
+            types: ['bird', 'normal'],
+            height: 30,
+            weight: 100,
+            abilities: [{ ability: { name: 'glitch' } }],
+            description: 'A glitch Pokémon that is said to appear when the game\'s data becomes corrupted. Catching it can have unpredictable effects.'
+        };
+        if (!pokemonData.find(p => p.id === 0)) {
+            pokemonData.push(missingNo);
+        }
+        let tile = document.querySelector('[data-pokemon-id="0"]');
+        if (!tile) {
+            tile = document.createElement('div');
+            tile.classList.add('pokemon-tile');
+            pokemonGrid.prepend(tile);
+        }
+        tile.dataset.pokemonId = missingNo.id;
+        tile.innerHTML = `<img src="${missingNo.image}" alt="${missingNo.name}">`;
+        tile.classList.add('revealed');
+        tile.style.background = `linear-gradient(to right, ${typeColors.flying}, ${typeColors.normal})`;
+    }
 }
 
 function createPokemonGrid() {
@@ -123,12 +151,18 @@ function createPokemonGrid() {
 }
 
 function saveGameState() {
-    const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')].map(tile => parseInt(tile.dataset.pokemonId));
+    const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')]
+        .map(tile => parseInt(tile.dataset.pokemonId))
+        .filter(id => id !== 0);
     localStorage.setItem('revealedPokemon', JSON.stringify(revealedPokemonIds));
     localStorage.setItem('pokemonGameScore', score);
 
     const shinyPokemonIds = pokemonData.filter(p => p.isShiny).map(p => p.id);
     localStorage.setItem('shinyPokemon', JSON.stringify(shinyPokemonIds));
+
+    if (document.querySelector('[data-pokemon-id="0"].revealed')) {
+        localStorage.setItem('missingNoRevealed', 'true');
+    }
 }
 
 pokemonInput.addEventListener('keydown', (event) => {
