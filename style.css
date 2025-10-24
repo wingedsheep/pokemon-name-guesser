@@ -59,13 +59,15 @@ h1 {
 
 #pokemon-grid {
     display: grid;
-    grid-template-columns: repeat(10, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
     gap: 10px;
+    width: 90%;
+    max-width: 1200px;
 }
 
 .pokemon-tile {
-    width: 100px;
-    height: 100px;
+    width: 100%;
+    aspect-ratio: 1 / 1;
     background-color: #3e3e3e;
     border: 2px outset #555;
     border-radius: 0;
@@ -236,4 +238,40 @@ h1 {
     image-rendering: pixelated;
     border: 2px solid #555;
     padding: 5px;
+}
+
+@media (max-width: 600px) {
+    .controls {
+        flex-direction: column;
+        width: 90%;
+    }
+
+    #pokemon-input {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    #mute-button, #hint-button, #reset-button, #score-counter {
+        width: 100%;
+        margin-left: 0;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+    }
+
+    .modal-content {
+        margin: 10% auto;
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    #feedback {
+        font-size: 18px;
+    }
+
+    #pokemon-input, #mute-button, #hint-button, #reset-button, #score-counter {
+        font-size: 16px;
+    }
 }
