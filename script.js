@@ -85,10 +85,10 @@ function loadGameState() {
 }
 
 function createPokemonGrid() {
-    for (let i = 0; i <= 151; i++) {
+    for (let i = 1; i <= 151; i++) {
         const tile = document.createElement('div');
         tile.classList.add('pokemon-tile');
-        tile.textContent = i === 0 ? '???' : i;
+        tile.textContent = i;
         tile.dataset.pokemonId = i;
         pokemonGrid.appendChild(tile);
     }
@@ -124,13 +124,17 @@ pokemonInput.addEventListener('keydown', (event) => {
                 pokemonData.push(missingNo);
             }
 
-            const tile = document.querySelector(`[data-pokemon-id='0']`);
-            if (tile) {
-                tile.dataset.pokemonId = missingNo.id;
-                tile.innerHTML = `<img src="${missingNo.image}" alt="${missingNo.name}">`;
-                tile.classList.add('revealed');
-                tile.style.background = `linear-gradient(to right, ${typeColors.flying}, ${typeColors.normal})`;
+            let tile = document.querySelector(`[data-pokemon-id='0']`);
+            if (!tile) {
+                tile = document.createElement('div');
+                tile.classList.add('pokemon-tile');
+                pokemonGrid.appendChild(tile);
             }
+
+            tile.dataset.pokemonId = missingNo.id;
+            tile.innerHTML = `<img src="${missingNo.image}" alt="${missingNo.name}">`;
+            tile.classList.add('revealed');
+            tile.style.background = `linear-gradient(to right, ${typeColors.flying}, ${typeColors.normal})`;
 
             displayPokemonModal(missingNo);
             pokemonInput.value = '';
