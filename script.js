@@ -7,8 +7,10 @@ const resetButton = document.getElementById('reset-button');
 const scoreCounter = document.getElementById('score-counter');
 const modal = document.getElementById('pokedex-modal');
 const gymLeaderModal = document.getElementById('gym-leader-modal');
+const itemModal = document.getElementById('item-modal');
 const pokedexCloseButton = document.querySelector('#pokedex-modal .close-button');
 const gymLeaderCloseButton = document.querySelector('#gym-leader-modal .close-button');
+const itemModalCloseButton = document.querySelector('#item-modal .close-button');
 
 const typeColors = {
     normal: '#a8a878',
@@ -94,7 +96,8 @@ async function fetchPokemonData() {
             };
         });
 
-        pokemonData = await Promise.all(pokemonPromises);
+        window.fetchPokemonDataPromise = Promise.all(pokemonPromises);
+        pokemonData = await window.fetchPokemonDataPromise;
         createPokemonGrid();
         await loadGameState();
     } catch (error) {
@@ -144,6 +147,33 @@ async function loadGameState() {
                 revealPokemon(pokemon, tile);
             }
         }
+    });
+
+    if (localStorage.getItem('missingNoRevealed') === 'true') {
+        const missingNo = {
+            name: 'MissingNo.',
+            id: 0,
+            image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzAwMCIvPgogIDxyZWN0IHg9IjEwIiB5PSIxMCIgd2lkdGg9IjIwIiBoZWlnaHQ9IjcwIiBmaWxsPSIjZmYwMGZmIi8+CiAgPHJlY3QgeD0iNDAiIHk9IjIwIiB3aWR0aD0iMTAiIGhlaWdodD0iNTAiIGZpbGw9IiMwMGZmZmYiLz4KICA8cGF0aCBkPSJNIDYwIDEwIEwgNzAgNTAgTCA2MCA5MCIgc3Ryb2tlPSIjZmYwMDAwIiBzdHJva2Utd2lkdGg9IjUiIGZpbGw9Im5vbmUiLz4KICA8cmVjdCB4PSI4MCIgeT0iMTAiIHdpZHRoPSIxMCIgaGVpZ2h0PSI4MCIgZmlsbD0iIzAwZmYwMCIvPgogIDxyZWN0IHg9IjUiIHk9IjMwIiB3aWR0aD0iOTAiIGhlaWdodD0iNSIgZmlsbD0iI2ZmZmZmZiIgc3R5bGU9Im1peC1ibGVuZC1tb2RlOiBkaWZmZXJlbmNlOyIvPgogIDxyZWN0IHg9IjUiIHk9IjYwIiB3aWR0aD0iOTAiIGhlaWdodD0iNSIgZmlsbD0iI2ZmZmZmZiIgc3R5bGU9Im1peC1ibGVuZC1tb2RlOiBkaWZmZXJlbmNlOyIvPgo8L3N2Zz4K',
+            isShiny: false,
+            types: ['bird', 'normal'],
+            height: 30,
+            weight: 100,
+            abilities: [{ ability: { name: 'glitch' } }],
+            description: 'A glitch Pokémon that is said to appear when the game\'s data becomes corrupted. Catching it can have unpredictable effects.'
+        };
+        if (!pokemonData.find(p => p.id === 0)) {
+            pokemonData.push(missingNo);
+        }
+        let tile = document.querySelector('[data-pokemon-id="0"]');
+        if (!tile) {
+            tile = document.createElement('div');
+            tile.classList.add('pokemon-tile');
+            pokemonGrid.prepend(tile);
+        }
+        tile.dataset.pokemonId = missingNo.id;
+        tile.innerHTML = `<img src="${missingNo.image}" alt="${missingNo.name}">`;
+        tile.classList.add('revealed');
+        tile.style.background = `linear-gradient(to right, ${typeColors.flying}, ${typeColors.normal})`;
     }
 }
 
@@ -182,19 +212,30 @@ function updateScoreDisplay() {
 }
 
 function saveGameState() {
-    const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')].map(tile => parseInt(tile.dataset.pokemonId));
+    const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')]
+        .map(tile => parseInt(tile.dataset.pokemonId))
+        .filter(id => id !== 0);
     localStorage.setItem('revealedPokemon', JSON.stringify(revealedPokemonIds));
     localStorage.setItem('pokemonGameScore', score);
 
     const shinyPokemonIds = pokemonData.filter(p => p.isShiny).map(p => p.id);
     localStorage.setItem('shinyPokemon', JSON.stringify(shinyPokemonIds));
     localStorage.setItem('gen2Unlocked', gen2Unlocked);
+
+    if (document.querySelector('[data-pokemon-id="0"].revealed')) {
+        localStorage.setItem('missingNoRevealed', 'true');
+    }
 }
 
 pokemonInput.addEventListener('keydown', async (event) => {
     if (event.key === 'Enter') {
         const guessedName = pokemonInput.value.toLowerCase();
         const normalizedGuessedName = normalizeName(guessedName);
+
+        if (handleItemGuess(normalizedGuessedName)) {
+            pokemonInput.value = '';
+            return;
+        }
 
         const leader = gymLeaders.find(l => normalizeName(l.name) === normalizedGuessedName);
         if (leader) {
@@ -380,12 +421,19 @@ gymLeaderCloseButton.addEventListener('click', () => {
     gymLeaderModal.style.display = 'none';
 });
 
+itemModalCloseButton.addEventListener('click', () => {
+    itemModal.style.display = 'none';
+});
+
 window.addEventListener('click', (event) => {
     if (event.target == modal) {
         modal.style.display = 'none';
     }
     if (event.target == gymLeaderModal) {
         gymLeaderModal.style.display = 'none';
+    }
+    if (event.target == itemModal) {
+        itemModal.style.display = 'none';
     }
 });
 
@@ -467,6 +515,108 @@ function levenshteinDistance(a, b) {
     }
 
     return matrix[b.length][a.length];
+}
+
+function handleItemGuess(normalizedGuessedName) {
+    const eeveeTile = document.querySelector('[data-pokemon-id="133"]');
+    const eeveeRevealed = eeveeTile && eeveeTile.classList.contains('revealed');
+
+    if (eeveeRevealed) {
+        let evolution = null;
+        if (normalizedGuessedName === 'waterstone') {
+            evolution = pokemonData.find(p => p.id === 134); // Vaporeon
+        } else if (normalizedGuessedName === 'thunderstone') {
+            evolution = pokemonData.find(p => p.id === 135); // Jolteon
+        } else if (normalizedGuessedName === 'firestone') {
+            evolution = pokemonData.find(p => p.id === 136); // Flareon
+        }
+
+        if (evolution) {
+            const itemMessage = document.getElementById('item-message');
+            const itemImageContainer = document.getElementById('item-image-container');
+
+            itemMessage.textContent = 'What? Eevee is evolving!';
+            itemImageContainer.innerHTML = `<img src="${eeveeTile.querySelector('img').src}" alt="Eevee">`;
+            itemModal.style.display = 'block';
+
+            let isEevee = true;
+            const evolutionInterval = setInterval(() => {
+                itemImageContainer.innerHTML = `<img src="${isEevee ? evolution.image : eeveeTile.querySelector('img').src}" alt="Evolution">`;
+                isEevee = !isEevee;
+            }, 500);
+
+            setTimeout(() => {
+                clearInterval(evolutionInterval);
+                itemModal.style.display = 'none';
+                const evolutionTile = document.querySelector(`[data-pokemon-id='${evolution.id}']`);
+                if (evolutionTile && !evolutionTile.classList.contains('revealed')) {
+                    evolutionTile.innerHTML = `<img src="${evolution.image}" alt="${evolution.name}">`;
+                    evolutionTile.classList.add('revealed');
+                    if (evolution.isShiny) {
+                        evolutionTile.classList.add('shiny');
+                    }
+                    if (evolution.types.length === 1) {
+                        evolutionTile.style.backgroundColor = typeColors[evolution.types[0]];
+                    } else {
+                        evolutionTile.style.background = `linear-gradient(to right, ${typeColors[evolution.types[0]]}, ${typeColors[evolution.types[1]]})`;
+                    }
+                    score++;
+                    scoreCounter.textContent = `Score: ${score} / 151`;
+                    saveGameState();
+                }
+            }, 3000);
+            return true;
+        }
+    }
+
+    let fossil = null;
+    if (normalizedGuessedName === 'helixfossil') {
+        fossil = pokemonData.find(p => p.id === 138); // Omanyte
+    } else if (normalizedGuessedName === 'domefossil') {
+        fossil = pokemonData.find(p => p.id === 140); // Kabuto
+    }
+
+    if (fossil) {
+        const fossilTile = document.querySelector(`[data-pokemon-id='${fossil.id}']`);
+        if (fossilTile && !fossilTile.classList.contains('revealed')) {
+            fossilTile.innerHTML = `<img src="${fossil.image}" alt="${fossil.name}">`;
+            fossilTile.classList.add('revealed');
+            if (fossil.isShiny) {
+                fossilTile.classList.add('shiny');
+            }
+            if (fossil.types.length === 1) {
+                fossilTile.style.backgroundColor = typeColors[fossil.types[0]];
+            } else {
+                fossilTile.style.background = `linear-gradient(to right, ${typeColors[fossil.types[0]]}, ${typeColors[fossil.types[1]]})`;
+            }
+            score++;
+            scoreCounter.textContent = `Score: ${score} / 151`;
+            saveGameState();
+
+            const itemMessage = document.getElementById('item-message');
+            itemMessage.textContent = `The ${normalizedGuessedName.replace('fossil', ' fossil')} has been revived into ${fossil.name}!`;
+            document.getElementById('item-image-container').innerHTML = `<img src="${fossil.image}" alt="${fossil.name}">`;
+            itemModal.style.display = 'block';
+        }
+        return true;
+    }
+
+    if (normalizedGuessedName === 'pokeflute') {
+        const snorlaxTile = document.querySelector('[data-pokemon-id="143"]');
+        if (snorlaxTile && snorlaxTile.classList.contains('revealed')) {
+            const snorlaxImage = snorlaxTile.querySelector('img');
+            snorlaxImage.src = 'https://mystickermania.com/cdn/stickers/pokemon/pkm-snorlax-waves-hand-512x512.png';
+            feedback.textContent = 'Snorlax woke up!';
+            feedback.className = 'correct';
+        } else {
+            feedback.textContent = 'A large Pokémon is blocking the path!';
+            feedback.className = '';
+        }
+        setTimeout(() => feedback.textContent = '', 3000);
+        return true;
+    }
+
+    return false;
 }
 
 fetchPokemonData();
