@@ -2,6 +2,7 @@ const pokemonGrid = document.getElementById('pokemon-grid');
 const pokemonInput = document.getElementById('pokemon-input');
 const feedback = document.getElementById('feedback');
 const muteButton = document.getElementById('mute-button');
+const hintButton = document.getElementById('hint-button');
 const modal = document.getElementById('pokedex-modal');
 const closeButton = document.querySelector('.close-button');
 
@@ -63,8 +64,21 @@ pokemonInput.addEventListener('keydown', (event) => {
                 audio.play();
             }
         } else {
-            feedback.textContent = 'Wrong!';
-            feedback.className = 'incorrect';
+            const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')].map(tile => parseInt(tile.dataset.pokemonId));
+            const unrevealedPokemon = pokemonData.filter(p => !revealedPokemonIds.includes(p.id));
+            let almostCorrect = false;
+            for (const p of unrevealedPokemon) {
+                if (levenshteinDistance(guessedName, p.name) <= 2) {
+                    feedback.textContent = 'Almost there!';
+                    feedback.className = 'incorrect';
+                    almostCorrect = true;
+                    break;
+                }
+            }
+            if (!almostCorrect) {
+                feedback.textContent = 'Wrong!';
+                feedback.className = 'incorrect';
+            }
             pokemonInput.classList.add('shake');
             setTimeout(() => pokemonInput.classList.remove('shake'), 500);
         }
@@ -72,6 +86,22 @@ pokemonInput.addEventListener('keydown', (event) => {
         pokemonInput.value = '';
         setTimeout(() => feedback.textContent = '', 2000);
     }
+});
+
+hintButton.addEventListener('click', () => {
+    const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')].map(tile => parseInt(tile.dataset.pokemonId));
+    const unrevealedPokemon = pokemonData.filter(p => !revealedPokemonIds.includes(p.id));
+
+    if (unrevealedPokemon.length > 0) {
+        const randomPokemon = unrevealedPokemon[Math.floor(Math.random() * unrevealedPokemon.length)];
+        const randomType = randomPokemon.types[Math.floor(Math.random() * randomPokemon.types.length)];
+        feedback.textContent = `Hint: There's a ${randomType} type Pokémon yet to be guessed!`;
+        feedback.className = '';
+    } else {
+        feedback.textContent = 'All Pokémon have been guessed!';
+        feedback.className = '';
+    }
+    setTimeout(() => feedback.textContent = '', 3000);
 });
 
 muteButton.addEventListener('click', () => {
@@ -109,5 +139,30 @@ pokemonGrid.addEventListener('click', async (event) => {
         modal.style.display = 'block';
     }
 });
+
+function levenshteinDistance(a, b) {
+    const matrix = Array(b.length + 1).fill(null).map(() => Array(a.length + 1).fill(null));
+
+    for (let i = 0; i <= a.length; i++) {
+        matrix[0][i] = i;
+    }
+
+    for (let j = 0; j <= b.length; j++) {
+        matrix[j][0] = j;
+    }
+
+    for (let j = 1; j <= b.length; j++) {
+        for (let i = 1; i <= a.length; i++) {
+            const indicator = a[i - 1] === b[j - 1] ? 0 : 1;
+            matrix[j][i] = Math.min(
+                matrix[j][i - 1] + 1,
+                matrix[j - 1][i] + 1,
+                matrix[j - 1][i - 1] + indicator
+            );
+        }
+    }
+
+    return matrix[b.length][a.length];
+}
 
 fetchPokemonData();
