@@ -6,7 +6,11 @@ const hintButton = document.getElementById('hint-button');
 const resetButton = document.getElementById('reset-button');
 const scoreCounter = document.getElementById('score-counter');
 const modal = document.getElementById('pokedex-modal');
-const closeButton = document.querySelector('.close-button');
+const gymLeaderModal = document.getElementById('gym-leader-modal');
+const itemModal = document.getElementById('item-modal');
+const pokedexCloseButton = document.querySelector('#pokedex-modal .close-button');
+const gymLeaderCloseButton = document.querySelector('#gym-leader-modal .close-button');
+const itemModalCloseButton = document.querySelector('#item-modal .close-button');
 
 const typeColors = {
     normal: '#a8a878',
@@ -28,6 +32,17 @@ const typeColors = {
     steel: '#b8b8d0',
     fairy: '#ee99ac'
 };
+
+const gymLeaders = [
+    { name: "Brock", badge: "Boulder Badge", pokemons: [74, 95] },
+    { name: "Misty", badge: "Cascade Badge", pokemons: [120, 121] },
+    { name: "Lt. Surge", badge: "Thunder Badge", pokemons: [100, 25, 26] },
+    { name: "Erika", badge: "Rainbow Badge", pokemons: [71, 114, 45] },
+    { name: "Koga", badge: "Soul Badge", pokemons: [109, 89, 109, 110] },
+    { name: "Sabrina", badge: "Marsh Badge", pokemons: [64, 122, 49, 65] },
+    { name: "Blaine", badge: "Volcano Badge", pokemons: [58, 77, 78, 59] },
+    { name: "Giovanni", badge: "Earth Badge", pokemons: [111, 51, 31, 34, 112] }
+];
 
 let pokemonData = [];
 let isMuted = false;
@@ -65,7 +80,7 @@ async function fetchPokemonData() {
 
             let isShiny = shinyPokemonIds.includes(pokemonDetails.id);
             if (!localStorage.getItem('shinyPokemon')) {
-                isShiny = Math.random() < 1 / 150;
+                isShiny = Math.random() < 1 / 100;
             }
 
             return {
@@ -83,32 +98,66 @@ async function fetchPokemonData() {
         window.fetchPokemonDataPromise = Promise.all(pokemonPromises);
         pokemonData = await window.fetchPokemonDataPromise;
         createPokemonGrid();
-        loadGameState();
+        await loadGameState();
     } catch (error) {
         console.error('Error fetching Pokémon data:', error);
     }
 }
 
-function loadGameState() {
+async function loadGameState() {
     const revealedPokemonIds = JSON.parse(localStorage.getItem('revealedPokemon')) || [];
     score = revealedPokemonIds.length;
     scoreCounter.textContent = `Score: ${score} / 151`;
 
-    revealedPokemonIds.forEach(id => {
-        const pokemon = pokemonData.find(p => p.id === id);
+    for (const id of revealedPokemonIds) {
+        let pokemon = pokemonData.find(p => p.id === id);
+
+        if (!pokemon && id > 151 && id <= 251) {
+            try {
+                const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+                if (!response.ok) continue;
+                const pokemonDetails = await response.json();
+
+                const shinyPokemonIds = JSON.parse(localStorage.getItem('shinyPokemon')) || [];
+                let isShiny = shinyPokemonIds.includes(pokemonDetails.id);
+
+                pokemon = {
+                    name: pokemonDetails.name,
+                    id: pokemonDetails.id,
+                    image: `https://raw.githubusercontent.com/jnovack/pokemon-svg/master/svg/${pokemonDetails.id}.svg`,
+                    isShiny: isShiny,
+                    types: pokemonDetails.types.map(typeInfo => typeInfo.type.name),
+                    height: pokemonDetails.height,
+                    weight: pokemonDetails.weight,
+                    abilities: pokemonDetails.abilities
+                };
+                pokemonData.push(pokemon);
+                pokemonData.sort((a, b) => a.id - b.id);
+
+                const tile = document.createElement('div');
+                tile.classList.add('pokemon-tile');
+                tile.dataset.pokemonId = pokemon.id;
+
+                const tiles = Array.from(pokemonGrid.children);
+                const nextPokemonTile = tiles.find(t => parseInt(t.dataset.pokemonId) > pokemon.id);
+
+                if (nextPokemonTile) {
+                    pokemonGrid.insertBefore(tile, nextPokemonTile);
+                } else {
+                    pokemonGrid.appendChild(tile);
+                }
+
+            } catch (error) {
+                console.error(`Error fetching revealed Gen 2 Pokémon with id ${id}:`, error);
+                continue;
+            }
+        }
+
         if (pokemon) {
             const tile = document.querySelector(`[data-pokemon-id='${pokemon.id}']`);
-            tile.innerHTML = `<img src="${pokemon.image}" alt="${pokemon.name}">`;
-            tile.classList.add('revealed');
-            if (pokemon.isShiny) {
-                tile.classList.add('shiny');
+            if (tile) {
+                revealPokemon(pokemon, tile);
             }
-            if (pokemon.types.length === 1) {
-                tile.style.backgroundColor = typeColors[pokemon.types[0]];
-            } else {
-                tile.style.background = `linear-gradient(to right, ${typeColors[pokemon.types[0]]}, ${typeColors[pokemon.types[1]]})`;
-            }
-            pokemon.types.forEach(type => tile.classList.add(type));
         }
     });
 
@@ -150,6 +199,20 @@ function createPokemonGrid() {
     }
 }
 
+function revealPokemon(pokemon, tile) {
+    tile.innerHTML = `<img src="${pokemon.image}" alt="${pokemon.name}">`;
+    tile.classList.add('revealed');
+    if (pokemon.isShiny) {
+        tile.classList.add('shiny');
+    }
+    if (pokemon.types.length === 1) {
+        tile.style.backgroundColor = typeColors[pokemon.types[0]];
+    } else {
+        tile.style.background = `linear-gradient(to right, ${typeColors[pokemon.types[0]]}, ${typeColors[pokemon.types[1]]})`;
+    }
+    pokemon.types.forEach(type => tile.classList.add(type));
+}
+
 function saveGameState() {
     const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')]
         .map(tile => parseInt(tile.dataset.pokemonId))
@@ -165,11 +228,27 @@ function saveGameState() {
     }
 }
 
-pokemonInput.addEventListener('keydown', (event) => {
+pokemonInput.addEventListener('keydown', async (event) => {
     if (event.key === 'Enter') {
         const guessedName = pokemonInput.value.toLowerCase();
+        const normalizedGuessedName = normalizeName(guessedName);
 
-        if (normalizeName(guessedName) === 'missingno') {
+        if (handleItemGuess(normalizedGuessedName)) {
+            pokemonInput.value = '';
+            return;
+        }
+
+        const leader = gymLeaders.find(l => normalizeName(l.name) === normalizedGuessedName);
+        if (leader) {
+            displayGymLeaderModal(leader);
+            pokemonInput.value = '';
+            feedback.textContent = `You've met Gym Leader ${leader.name}!`;
+            feedback.className = 'correct';
+            setTimeout(() => feedback.textContent = '', 2000);
+            return;
+        }
+
+        if (normalizedGuessedName === 'missingno') {
             document.body.classList.add('glitch');
             setTimeout(() => document.body.classList.remove('glitch'), 1500);
 
@@ -207,22 +286,12 @@ pokemonInput.addEventListener('keydown', (event) => {
             return;
         }
 
-        const normalizedGuessedName = normalizeName(guessedName);
         const pokemon = pokemonData.find(p => normalizeName(p.name) === normalizedGuessedName);
 
         if (pokemon) {
             almostCorrectPokemon = null;
             const tile = document.querySelector(`[data-pokemon-id='${pokemon.id}']`);
-            tile.innerHTML = `<img src="${pokemon.image}" alt="${pokemon.name}">`;
-            tile.classList.add('revealed');
-            if (pokemon.isShiny) {
-                tile.classList.add('shiny');
-            }
-            if (pokemon.types.length === 1) {
-                tile.style.backgroundColor = typeColors[pokemon.types[0]];
-            } else {
-                tile.style.background = `linear-gradient(to right, ${typeColors[pokemon.types[0]]}, ${typeColors[pokemon.types[1]]})`;
-            }
+            revealPokemon(pokemon, tile);
             feedback.textContent = 'Correct!';
             feedback.className = 'correct';
             score++;
@@ -234,30 +303,90 @@ pokemonInput.addEventListener('keydown', (event) => {
                 audio.play();
             }
         } else {
-            if (almostCorrectPokemon) {
-                feedback.textContent = `The correct spelling was ${almostCorrectPokemon.name}!`;
-                feedback.className = 'incorrect';
-                almostCorrectPokemon = null;
-            } else {
-                const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')].map(tile => parseInt(tile.dataset.pokemonId));
-                const unrevealedPokemon = pokemonData.filter(p => !revealedPokemonIds.includes(p.id));
-                let foundAlmostCorrect = false;
-                for (const p of unrevealedPokemon) {
-                    if (levenshteinDistance(normalizedGuessedName, normalizeName(p.name)) <= 2) {
-                        almostCorrectPokemon = p;
-                        feedback.textContent = 'You are very close! Almost there!';
-                        feedback.className = 'incorrect';
-                        foundAlmostCorrect = true;
-                        break;
+            let foundGen2Pokemon = false;
+            try {
+                const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${normalizedGuessedName}`);
+                if (response.ok) {
+                    const pokemonDetails = await response.json();
+                    if (pokemonDetails.id > 151 && pokemonDetails.id <= 251) {
+                        foundGen2Pokemon = true;
+                        const shinyPokemonIds = JSON.parse(localStorage.getItem('shinyPokemon')) || [];
+                        let isShiny = shinyPokemonIds.includes(pokemonDetails.id);
+                        if (!localStorage.getItem('shinyPokemon')) {
+                            isShiny = Math.random() < 1 / 150;
+                        }
+
+                        const newPokemon = {
+                            name: pokemonDetails.name,
+                            id: pokemonDetails.id,
+                            image: `https://raw.githubusercontent.com/jnovack/pokemon-svg/master/svg/${pokemonDetails.id}.svg`,
+                            isShiny: isShiny,
+                            types: pokemonDetails.types.map(typeInfo => typeInfo.type.name),
+                            height: pokemonDetails.height,
+                            weight: pokemonDetails.weight,
+                            abilities: pokemonDetails.abilities
+                        };
+
+                        pokemonData.push(newPokemon);
+                        pokemonData.sort((a, b) => a.id - b.id);
+
+                        const tile = document.createElement('div');
+                        tile.classList.add('pokemon-tile');
+                        tile.dataset.pokemonId = newPokemon.id;
+
+                        const tiles = Array.from(pokemonGrid.children);
+                        const nextPokemonTile = tiles.find(t => parseInt(t.dataset.pokemonId) > newPokemon.id);
+
+                        if (nextPokemonTile) {
+                            pokemonGrid.insertBefore(tile, nextPokemonTile);
+                        } else {
+                            pokemonGrid.appendChild(tile);
+                        }
+
+                        revealPokemon(newPokemon, tile);
+
+                        feedback.textContent = 'Correct!';
+                        feedback.className = 'correct';
+                        score++;
+                        scoreCounter.textContent = `Score: ${score} / 151`;
+                        saveGameState();
+                        if (!isMuted) {
+                            const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${newPokemon.name}.mp3`;
+                            const audio = new Audio(cryUrl);
+                            audio.play();
+                        }
                     }
                 }
-                if (!foundAlmostCorrect) {
-                    feedback.textContent = 'Wrong!';
-                    feedback.className = 'incorrect';
-                }
+            } catch (error) {
+                console.error("Error fetching gen 2 pokemon", error);
             }
-            pokemonInput.classList.add('shake');
-            setTimeout(() => pokemonInput.classList.remove('shake'), 500);
+
+            if (!foundGen2Pokemon) {
+                if (almostCorrectPokemon) {
+                    feedback.textContent = `The correct spelling was ${almostCorrectPokemon.name}!`;
+                    feedback.className = 'incorrect';
+                    almostCorrectPokemon = null;
+                } else {
+                    const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')].map(tile => parseInt(tile.dataset.pokemonId));
+                    const unrevealedPokemon = pokemonData.filter(p => !revealedPokemonIds.includes(p.id));
+                    let foundAlmostCorrect = false;
+                    for (const p of unrevealedPokemon) {
+                        if (levenshteinDistance(normalizedGuessedName, normalizeName(p.name)) <= 2) {
+                            almostCorrectPokemon = p;
+                            feedback.textContent = 'You are very close! Almost there!';
+                            feedback.className = 'incorrect';
+                            foundAlmostCorrect = true;
+                            break;
+                        }
+                    }
+                    if (!foundAlmostCorrect) {
+                        feedback.textContent = 'Wrong!';
+                        feedback.className = 'incorrect';
+                    }
+                }
+                pokemonInput.classList.add('shake');
+                setTimeout(() => pokemonInput.classList.remove('shake'), 500);
+            }
         }
 
         pokemonInput.value = '';
@@ -293,15 +422,45 @@ muteButton.addEventListener('click', () => {
     muteButton.classList.toggle('muted', isMuted);
 });
 
-closeButton.addEventListener('click', () => {
+pokedexCloseButton.addEventListener('click', () => {
     modal.style.display = 'none';
+});
+
+gymLeaderCloseButton.addEventListener('click', () => {
+    gymLeaderModal.style.display = 'none';
+});
+
+itemModalCloseButton.addEventListener('click', () => {
+    itemModal.style.display = 'none';
 });
 
 window.addEventListener('click', (event) => {
     if (event.target == modal) {
         modal.style.display = 'none';
     }
+    if (event.target == gymLeaderModal) {
+        gymLeaderModal.style.display = 'none';
+    }
+    if (event.target == itemModal) {
+        itemModal.style.display = 'none';
+    }
 });
+
+function displayGymLeaderModal(leader) {
+    document.getElementById('gym-leader-name').textContent = leader.name;
+    document.getElementById('gym-leader-badge').textContent = leader.badge;
+
+    const pokemonGrid = document.getElementById('gym-leader-pokemon-grid');
+    pokemonGrid.innerHTML = '';
+
+    leader.pokemons.forEach(pokemonId => {
+        const pokemonImage = document.createElement('img');
+        pokemonImage.src = `https://raw.githubusercontent.com/jnovack/pokemon-svg/master/svg/${pokemonId}.svg`;
+        pokemonGrid.appendChild(pokemonImage);
+    });
+
+    gymLeaderModal.style.display = 'block';
+}
 
 async function displayPokemonModal(pokemon) {
     let description;
@@ -365,6 +524,108 @@ function levenshteinDistance(a, b) {
     }
 
     return matrix[b.length][a.length];
+}
+
+function handleItemGuess(normalizedGuessedName) {
+    const eeveeTile = document.querySelector('[data-pokemon-id="133"]');
+    const eeveeRevealed = eeveeTile && eeveeTile.classList.contains('revealed');
+
+    if (eeveeRevealed) {
+        let evolution = null;
+        if (normalizedGuessedName === 'waterstone') {
+            evolution = pokemonData.find(p => p.id === 134); // Vaporeon
+        } else if (normalizedGuessedName === 'thunderstone') {
+            evolution = pokemonData.find(p => p.id === 135); // Jolteon
+        } else if (normalizedGuessedName === 'firestone') {
+            evolution = pokemonData.find(p => p.id === 136); // Flareon
+        }
+
+        if (evolution) {
+            const itemMessage = document.getElementById('item-message');
+            const itemImageContainer = document.getElementById('item-image-container');
+
+            itemMessage.textContent = 'What? Eevee is evolving!';
+            itemImageContainer.innerHTML = `<img src="${eeveeTile.querySelector('img').src}" alt="Eevee">`;
+            itemModal.style.display = 'block';
+
+            let isEevee = true;
+            const evolutionInterval = setInterval(() => {
+                itemImageContainer.innerHTML = `<img src="${isEevee ? evolution.image : eeveeTile.querySelector('img').src}" alt="Evolution">`;
+                isEevee = !isEevee;
+            }, 500);
+
+            setTimeout(() => {
+                clearInterval(evolutionInterval);
+                itemModal.style.display = 'none';
+                const evolutionTile = document.querySelector(`[data-pokemon-id='${evolution.id}']`);
+                if (evolutionTile && !evolutionTile.classList.contains('revealed')) {
+                    evolutionTile.innerHTML = `<img src="${evolution.image}" alt="${evolution.name}">`;
+                    evolutionTile.classList.add('revealed');
+                    if (evolution.isShiny) {
+                        evolutionTile.classList.add('shiny');
+                    }
+                    if (evolution.types.length === 1) {
+                        evolutionTile.style.backgroundColor = typeColors[evolution.types[0]];
+                    } else {
+                        evolutionTile.style.background = `linear-gradient(to right, ${typeColors[evolution.types[0]]}, ${typeColors[evolution.types[1]]})`;
+                    }
+                    score++;
+                    scoreCounter.textContent = `Score: ${score} / 151`;
+                    saveGameState();
+                }
+            }, 3000);
+            return true;
+        }
+    }
+
+    let fossil = null;
+    if (normalizedGuessedName === 'helixfossil') {
+        fossil = pokemonData.find(p => p.id === 138); // Omanyte
+    } else if (normalizedGuessedName === 'domefossil') {
+        fossil = pokemonData.find(p => p.id === 140); // Kabuto
+    }
+
+    if (fossil) {
+        const fossilTile = document.querySelector(`[data-pokemon-id='${fossil.id}']`);
+        if (fossilTile && !fossilTile.classList.contains('revealed')) {
+            fossilTile.innerHTML = `<img src="${fossil.image}" alt="${fossil.name}">`;
+            fossilTile.classList.add('revealed');
+            if (fossil.isShiny) {
+                fossilTile.classList.add('shiny');
+            }
+            if (fossil.types.length === 1) {
+                fossilTile.style.backgroundColor = typeColors[fossil.types[0]];
+            } else {
+                fossilTile.style.background = `linear-gradient(to right, ${typeColors[fossil.types[0]]}, ${typeColors[fossil.types[1]]})`;
+            }
+            score++;
+            scoreCounter.textContent = `Score: ${score} / 151`;
+            saveGameState();
+
+            const itemMessage = document.getElementById('item-message');
+            itemMessage.textContent = `The ${normalizedGuessedName.replace('fossil', ' fossil')} has been revived into ${fossil.name}!`;
+            document.getElementById('item-image-container').innerHTML = `<img src="${fossil.image}" alt="${fossil.name}">`;
+            itemModal.style.display = 'block';
+        }
+        return true;
+    }
+
+    if (normalizedGuessedName === 'pokeflute') {
+        const snorlaxTile = document.querySelector('[data-pokemon-id="143"]');
+        if (snorlaxTile && snorlaxTile.classList.contains('revealed')) {
+            const snorlaxImage = snorlaxTile.querySelector('img');
+            snorlaxImage.src = 'https://mystickermania.com/cdn/stickers/pokemon/pkm-snorlax-waves-hand-512x512.png';
+            feedback.textContent = 'Snorlax woke up!';
+            feedback.className = 'correct';
+        } else {
+            feedback.textContent = 'A large Pokémon is blocking the path!';
+            feedback.className = '';
+        }
+        setTimeout(() => feedback.textContent = '', 3000);
+        return true;
+    }
+
+    return false;
 }
 
 fetchPokemonData();
