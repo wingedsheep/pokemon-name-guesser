@@ -2,6 +2,8 @@ const pokemonGrid = document.getElementById('pokemon-grid');
 const pokemonInput = document.getElementById('pokemon-input');
 const feedback = document.getElementById('feedback');
 const muteButton = document.getElementById('mute-button');
+const modal = document.getElementById('pokedex-modal');
+const closeButton = document.querySelector('.close-button');
 
 let pokemonData = [];
 let isMuted = false;
@@ -19,7 +21,10 @@ async function fetchPokemonData() {
                 name: pokemonDetails.name,
                 id: pokemonDetails.id,
                 image: `https://raw.githubusercontent.com/jnovack/pokemon-svg/master/svg/${pokemonDetails.id}.svg`,
-                types: pokemonDetails.types.map(typeInfo => typeInfo.type.name)
+                types: pokemonDetails.types.map(typeInfo => typeInfo.type.name),
+                height: pokemonDetails.height,
+                weight: pokemonDetails.weight,
+                abilities: pokemonDetails.abilities
             };
         });
 
@@ -71,7 +76,38 @@ pokemonInput.addEventListener('keydown', (event) => {
 
 muteButton.addEventListener('click', () => {
     isMuted = !isMuted;
-    muteButton.textContent = isMuted ? 'Unmute' : 'Mute';
+    muteButton.classList.toggle('muted', isMuted);
+});
+
+closeButton.addEventListener('click', () => {
+    modal.style.display = 'none';
+});
+
+window.addEventListener('click', (event) => {
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+});
+
+pokemonGrid.addEventListener('click', async (event) => {
+    const tile = event.target.closest('.pokemon-tile');
+    if (tile && tile.classList.contains('revealed')) {
+        const pokemonId = tile.dataset.pokemonId;
+        const pokemon = pokemonData.find(p => p.id == pokemonId);
+
+        const speciesResponse = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemonId}`);
+        const speciesData = await speciesResponse.json();
+        const description = speciesData.flavor_text_entries.find(entry => entry.language.name === 'en').flavor_text;
+
+        document.getElementById('pokemon-name').textContent = pokemon.name;
+        document.getElementById('pokemon-image').src = pokemon.image;
+        document.getElementById('pokemon-height').textContent = `${pokemon.height / 10} m`;
+        document.getElementById('pokemon-weight').textContent = `${pokemon.weight / 10} kg`;
+        document.getElementById('pokemon-abilities').textContent = pokemon.abilities.map(a => a.ability.name).join(', ');
+        document.getElementById('pokemon-description').textContent = description;
+
+        modal.style.display = 'block';
+    }
 });
 
 fetchPokemonData();
