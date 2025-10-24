@@ -36,6 +36,16 @@ h1 {
     content: '🔊';
 }
 
+#score-counter {
+    background-color: #3e3e3e;
+    color: #f0f0f0;
+    border: 2px outset #555;
+    padding: 10px;
+    font-family: "Pixelify Sans", sans-serif;
+    margin-left: 10px;
+    font-size: 20px;
+}
+
 #pokemon-input {
     padding: 10px;
     font-size: 16px;

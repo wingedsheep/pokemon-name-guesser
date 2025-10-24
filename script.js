@@ -4,6 +4,7 @@ const feedback = document.getElementById('feedback');
 const muteButton = document.getElementById('mute-button');
 const hintButton = document.getElementById('hint-button');
 const resetButton = document.getElementById('reset-button');
+const scoreCounter = document.getElementById('score-counter');
 const modal = document.getElementById('pokedex-modal');
 const closeButton = document.querySelector('.close-button');
 
@@ -31,6 +32,7 @@ const typeColors = {
 let pokemonData = [];
 let isMuted = false;
 let almostCorrectPokemon = null;
+let score = 0;
 
 function normalizeName(name) {
     return name.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -61,14 +63,16 @@ async function fetchPokemonData() {
 
         pokemonData = await Promise.all(pokemonPromises);
         createPokemonGrid();
-        loadRevealedPokemon();
+        loadGameState();
     } catch (error) {
         console.error('Error fetching Pokémon data:', error);
     }
 }
 
-function loadRevealedPokemon() {
+function loadGameState() {
     const revealedPokemonIds = JSON.parse(localStorage.getItem('revealedPokemon')) || [];
+    score = revealedPokemonIds.length;
+    scoreCounter.textContent = `Score: ${score} / 151`;
     revealedPokemonIds.forEach(id => {
         const pokemon = pokemonData.find(p => p.id === id);
         if (pokemon) {
@@ -90,9 +94,10 @@ function createPokemonGrid() {
     }
 }
 
-function saveRevealedPokemon() {
+function saveGameState() {
     const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')].map(tile => parseInt(tile.dataset.pokemonId));
     localStorage.setItem('revealedPokemon', JSON.stringify(revealedPokemonIds));
+    localStorage.setItem('pokemonGameScore', score);
 }
 
 pokemonInput.addEventListener('keydown', (event) => {
@@ -151,7 +156,9 @@ pokemonInput.addEventListener('keydown', (event) => {
             }
             feedback.textContent = 'Correct!';
             feedback.className = 'correct';
-            saveRevealedPokemon();
+            score++;
+            scoreCounter.textContent = `Score: ${score} / 151`;
+            saveGameState();
             if (!isMuted) {
                 const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${pokemon.name}.mp3`;
                 const audio = new Audio(cryUrl);
@@ -207,6 +214,7 @@ hintButton.addEventListener('click', () => {
 
 resetButton.addEventListener('click', () => {
     localStorage.removeItem('revealedPokemon');
+    localStorage.removeItem('pokemonGameScore');
     location.reload();
 });
 
