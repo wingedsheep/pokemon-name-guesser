@@ -48,6 +48,134 @@ let pokemonData = [];
 let isMuted = false;
 let almostCorrectPokemon = null;
 let score = 0;
+let isWaitingForPokemonToEvolve = false;
+
+async function handleRareCandyEvolution(pokemonName) {
+    isWaitingForPokemonToEvolve = false; // Reset state immediately
+
+    const basePokemon = pokemonData.find(p => normalizeName(p.name) === pokemonName);
+    const basePokemonTile = document.querySelector(`[data-pokemon-id='${basePokemon?.id}']`);
+
+    if (!basePokemon || !basePokemonTile || !basePokemonTile.classList.contains('revealed')) {
+        feedback.textContent = 'You must choose a Pokémon you have already revealed.';
+        feedback.className = 'incorrect';
+        setTimeout(() => feedback.textContent = '', 3000);
+        return;
+    }
+
+    try {
+        const speciesResponse = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${basePokemon.id}`);
+        if (!speciesResponse.ok) throw new Error('Could not fetch species data.');
+        const speciesData = await speciesResponse.json();
+
+        const evolutionChainUrl = speciesData.evolution_chain.url;
+        const evolutionResponse = await fetch(evolutionChainUrl);
+        if (!evolutionResponse.ok) throw new Error('Could not fetch evolution data.');
+        const evolutionData = await evolutionResponse.json();
+
+        function findEvolution(stage) {
+            if (stage.species.name === basePokemon.name) {
+                if (stage.evolves_to.length > 0) {
+                    return stage.evolves_to[0].species.name;
+                }
+                return null;
+            }
+
+            for (const nextStage of stage.evolves_to) {
+                const found = findEvolution(nextStage);
+                if (found) {
+                    return found;
+                }
+            }
+            return null;
+        }
+
+        const evolutionTargetName = findEvolution(evolutionData.chain);
+
+        if (!evolutionTargetName) {
+            feedback.textContent = `${basePokemon.name} can't evolve any further.`;
+            feedback.className = 'incorrect';
+            setTimeout(() => feedback.textContent = '', 3000);
+            return;
+        }
+
+        const evolutionPokemonData = pokemonData.find(p => p.name === evolutionTargetName);
+        const evolutionTile = evolutionPokemonData ? document.querySelector(`[data-pokemon-id='${evolutionPokemonData.id}']`) : null;
+
+        if (evolutionTile && evolutionTile.classList.contains('revealed')) {
+            feedback.textContent = `${evolutionTargetName} has already been revealed.`;
+            feedback.className = 'incorrect';
+            setTimeout(() => feedback.textContent = '', 3000);
+            return;
+        }
+
+        let evolutionDetails = evolutionPokemonData;
+        if (!evolutionDetails) {
+             const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${evolutionTargetName}`);
+             const details = await response.json();
+             evolutionDetails = {
+                name: details.name,
+                id: details.id,
+                image: `https://raw.githubusercontent.com/jnovack/pokemon-svg/master/svg/${details.id}.svg`,
+                isShiny: Math.random() < 1 / 100,
+                types: details.types.map(typeInfo => typeInfo.type.name),
+                height: details.height,
+                weight: details.weight,
+                abilities: details.abilities
+            };
+            pokemonData.push(evolutionDetails);
+            pokemonData.sort((a,b) => a.id - b.id);
+        }
+
+        const itemMessage = document.getElementById('item-message');
+        const itemImageContainer = document.getElementById('item-image-container');
+
+        itemMessage.textContent = `What? ${basePokemon.name} is evolving!`;
+        itemImageContainer.innerHTML = `<img src="${basePokemon.image}" alt="${basePokemon.name}">`;
+        itemModal.style.display = 'block';
+
+        let isBaseForm = true;
+        const evolutionInterval = setInterval(() => {
+            itemImageContainer.innerHTML = `<img src="${isBaseForm ? evolutionDetails.image : basePokemon.image}" alt="Evolution">`;
+            isBaseForm = !isBaseForm;
+        }, 500);
+
+        setTimeout(() => {
+            clearInterval(evolutionInterval);
+            itemModal.style.display = 'none';
+
+            let tileToReveal = document.querySelector(`[data-pokemon-id='${evolutionDetails.id}']`);
+            if(!tileToReveal) {
+                 tileToReveal = document.createElement('div');
+                 tileToReveal.classList.add('pokemon-tile');
+                 tileToReveal.dataset.pokemonId = evolutionDetails.id;
+                 const tiles = Array.from(pokemonGrid.children);
+                 const nextPokemonTile = tiles.find(t => parseInt(t.dataset.pokemonId) > evolutionDetails.id);
+                 if (nextPokemonTile) {
+                     pokemonGrid.insertBefore(tileToReveal, nextPokemonTile);
+                 } else {
+                     pokemonGrid.appendChild(tileToReveal);
+                 }
+            }
+
+            revealPokemon(evolutionDetails, tileToReveal);
+            score++;
+            scoreCounter.textContent = `Score: ${score} / 151`;
+            localStorage.setItem('rareCandyUsed', 'true');
+            saveGameState();
+            feedback.textContent = `Congratulations! Your ${basePokemon.name} evolved into ${evolutionDetails.name}!`;
+            feedback.className = 'correct';
+            setTimeout(() => feedback.textContent = '', 3000);
+
+        }, 3000);
+
+    } catch (error) {
+        console.error('Error during evolution:', error);
+        feedback.textContent = 'Something went wrong with the evolution process.';
+        feedback.className = 'incorrect';
+        setTimeout(() => feedback.textContent = '', 3000);
+    }
+}
 
 function normalizeName(name) {
     return name.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -187,6 +315,14 @@ async function loadGameState() {
         tile.classList.add('revealed');
         tile.style.background = `linear-gradient(to right, ${typeColors.flying}, ${typeColors.normal})`;
     }
+
+    if (localStorage.getItem('snorlaxAwake') === 'true') {
+        const snorlaxTile = document.querySelector('[data-pokemon-id="143"]');
+        if (snorlaxTile && snorlaxTile.classList.contains('revealed')) {
+            const snorlaxImage = snorlaxTile.querySelector('img');
+            snorlaxImage.src = 'https://mystickermania.com/cdn/stickers/pokemon/pkm-snorlax-waves-hand-512x512.png';
+        }
+    }
 }
 
 function createPokemonGrid() {
@@ -232,6 +368,12 @@ pokemonInput.addEventListener('keydown', async (event) => {
     if (event.key === 'Enter') {
         const guessedName = pokemonInput.value.toLowerCase();
         const normalizedGuessedName = normalizeName(guessedName);
+
+        if (isWaitingForPokemonToEvolve) {
+            handleRareCandyEvolution(normalizedGuessedName);
+            pokemonInput.value = '';
+            return;
+        }
 
         if (handleItemGuess(normalizedGuessedName)) {
             pokemonInput.value = '';
@@ -414,6 +556,8 @@ resetButton.addEventListener('click', () => {
     localStorage.removeItem('revealedPokemon');
     localStorage.removeItem('pokemonGameScore');
     localStorage.removeItem('shinyPokemon');
+    localStorage.removeItem('snorlaxAwake');
+    localStorage.removeItem('rareCandyUsed');
     location.reload();
 });
 
@@ -615,6 +759,7 @@ function handleItemGuess(normalizedGuessedName) {
         if (snorlaxTile && snorlaxTile.classList.contains('revealed')) {
             const snorlaxImage = snorlaxTile.querySelector('img');
             snorlaxImage.src = 'https://mystickermania.com/cdn/stickers/pokemon/pkm-snorlax-waves-hand-512x512.png';
+            localStorage.setItem('snorlaxAwake', 'true');
             feedback.textContent = 'Snorlax woke up!';
             feedback.className = 'correct';
         } else {
@@ -622,6 +767,19 @@ function handleItemGuess(normalizedGuessedName) {
             feedback.className = '';
         }
         setTimeout(() => feedback.textContent = '', 3000);
+        return true;
+    }
+
+    if (normalizedGuessedName === 'rarecandy') {
+        if (localStorage.getItem('rareCandyUsed') === 'true') {
+            feedback.textContent = 'You have already used your Rare Candy.';
+            feedback.className = 'incorrect';
+        } else {
+            feedback.textContent = 'Which Pokémon will you give the Rare Candy to?';
+            feedback.className = '';
+            isWaitingForPokemonToEvolve = true;
+        }
+        setTimeout(() => feedback.textContent = '', 4000);
         return true;
     }
 
