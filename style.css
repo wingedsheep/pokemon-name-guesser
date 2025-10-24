@@ -77,24 +77,6 @@ h1 {
     border: 2px inset #555;
 }
 
-.normal { background-color: #a8a878; }
-.fire { background-color: #f08030; }
-.water { background-color: #6890f0; }
-.electric { background-color: #f8d030; }
-.ice { background-color: #98d8d8; }
-.fighting { background-color: #c03028; }
-.ground { background-color: #e0c068; }
-.flying { background-color: #a890f0; }
-.poison { background-color: #a040a0; }
-.grass { background-color: #78c850; }
-.psychic { background-color: #f85888; }
-.bug { background-color: #a8b820; }
-.rock { background-color: #b8a038; }
-.ghost { background-color: #705898; }
-.dragon { background-color: #7038f8; }
-.dark { background-color: #705848; }
-.steel { background-color: #b8b8d0; }
-.fairy { background-color: #ee99ac; }
 
 .pokemon-tile img {
     max-width: 90%;
@@ -135,6 +117,46 @@ h1 {
 
 .shake {
     animation: shake 0.5s;
+}
+
+@keyframes glitch-animation {
+    0% {
+        filter: hue-rotate(0deg) contrast(100%) brightness(100%);
+        transform: translate(0, 0);
+    }
+    25% {
+        filter: hue-rotate(90deg) contrast(120%) brightness(80%);
+        transform: translate(-2px, 2px);
+    }
+    50% {
+        filter: hue-rotate(180deg) contrast(80%) brightness(120%);
+        transform: translate(2px, -2px);
+    }
+    75% {
+        filter: hue-rotate(270deg) contrast(110%) brightness(90%);
+        transform: translate(-1px, 1px);
+    }
+    100% {
+        filter: hue-rotate(360deg) contrast(100%) brightness(100%);
+        transform: translate(0, 0);
+    }
+}
+
+.glitch {
+    animation: glitch-animation 0.3s infinite;
+}
+
+@keyframes sparkle {
+    0%, 100% {
+        filter: brightness(1) hue-rotate(0deg);
+    }
+    50% {
+        filter: brightness(1.5) hue-rotate(180deg) drop-shadow(0 0 5px #fff);
+    }
+}
+
+.shiny img {
+    animation: sparkle 2s infinite;
 }
 
 /* Modal Styles */

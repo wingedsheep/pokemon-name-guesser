@@ -6,6 +6,27 @@ const hintButton = document.getElementById('hint-button');
 const modal = document.getElementById('pokedex-modal');
 const closeButton = document.querySelector('.close-button');
 
+const typeColors = {
+    normal: '#a8a878',
+    fire: '#f08030',
+    water: '#6890f0',
+    electric: '#f8d030',
+    ice: '#98d8d8',
+    fighting: '#c03028',
+    ground: '#e0c068',
+    flying: '#a890f0',
+    poison: '#a040a0',
+    grass: '#78c850',
+    psychic: '#f85888',
+    bug: '#a8b820',
+    rock: '#b8a038',
+    ghost: '#705898',
+    dragon: '#7038f8',
+    dark: '#705848',
+    steel: '#b8b8d0',
+    fairy: '#ee99ac'
+};
+
 let pokemonData = [];
 let isMuted = false;
 let almostCorrectPokemon = null;
@@ -23,10 +44,13 @@ async function fetchPokemonData() {
         const pokemonPromises = pokemonList.map(async (pokemon) => {
             const response = await fetch(pokemon.url);
             const pokemonDetails = await response.json();
+            const isShiny = Math.random() < 1 / 150;
+
             return {
                 name: pokemonDetails.name,
                 id: pokemonDetails.id,
                 image: `https://raw.githubusercontent.com/jnovack/pokemon-svg/master/svg/${pokemonDetails.id}.svg`,
+                isShiny: isShiny,
                 types: pokemonDetails.types.map(typeInfo => typeInfo.type.name),
                 height: pokemonDetails.height,
                 weight: pokemonDetails.weight,
@@ -42,10 +66,10 @@ async function fetchPokemonData() {
 }
 
 function createPokemonGrid() {
-    for (let i = 1; i <= 151; i++) {
+    for (let i = 0; i <= 151; i++) {
         const tile = document.createElement('div');
         tile.classList.add('pokemon-tile');
-        tile.textContent = i;
+        tile.textContent = i === 0 ? '???' : i;
         tile.dataset.pokemonId = i;
         pokemonGrid.appendChild(tile);
     }
@@ -54,6 +78,41 @@ function createPokemonGrid() {
 pokemonInput.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
         const guessedName = pokemonInput.value.toLowerCase();
+
+        if (normalizeName(guessedName) === 'missingno') {
+            document.body.classList.add('glitch');
+            setTimeout(() => document.body.classList.remove('glitch'), 1500);
+
+            const missingNo = {
+                name: 'MissingNo.',
+                id: 0,
+                image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAARlJREFUeJzt2EFOQzEMBECfsvsS2Qe73ETnD/A8v4Qvxx1sXpAHanYmIBAyM8/sXxzC//4wz3w/h3d/7kP84x9+A8AfwB9g/g3gC/D/fsAf4P/9gH/A//sB/wD/7wf8A/y/H/AP8P9+gD8A/gD/bwD8Ab5A/j/A7wP8Af6/H/AP8P9+wD/A//sB/wD/7wf8A/y/H/AP8P9+wD/A//sB/wD/bwb8AfgD/L8B8A/w/37AP8D/+wH/AP/vB/wD/L8f8A/w/37AP8D/+wH/AP/vB/wD/L8f8AfwB/j/fgD8AX7A/zcDfgD+AP8vAPwB/gD/rwf8Af4A/28G/AG+QP8vAPgD/AH+v/4D/gD/bwD8AX7A/jsBfwD+AP9vBvwB/gD/bwD8AX7A/04AfgD+AP8vAPwB/gD/bwD8Ab5A/3EBPwB/gP83A/4A/wD/rwf8AfgD/L8B8A/w/3bA/gH+3w74A/y/H/AP8P92wP4B/t8O+AP8vx/wB/gD/L8d8A/w/wYAAAAASUVORK5CYII=',
+                isShiny: false,
+                types: ['bird', 'normal'],
+                height: 30,
+                weight: 100,
+                abilities: [{ ability: { name: 'glitch' } }],
+                description: 'A glitch Pokémon that is said to appear when the game\'s data becomes corrupted. Catching it can have unpredictable effects.'
+            };
+
+            if (!pokemonData.find(p => p.id === 0)) {
+                pokemonData.push(missingNo);
+            }
+
+            const tile = document.querySelector(`[data-pokemon-id='0']`);
+            if (tile) {
+                tile.dataset.pokemonId = missingNo.id;
+                tile.innerHTML = `<img src="${missingNo.image}" alt="${missingNo.name}">`;
+                tile.classList.add('revealed');
+                tile.style.background = `linear-gradient(to right, ${typeColors.flying}, ${typeColors.normal})`;
+            }
+
+            displayPokemonModal(missingNo);
+            pokemonInput.value = '';
+            setTimeout(() => feedback.textContent = '', 2000);
+            return;
+        }
+
         const normalizedGuessedName = normalizeName(guessedName);
         const pokemon = pokemonData.find(p => normalizeName(p.name) === normalizedGuessedName);
 
@@ -62,7 +121,14 @@ pokemonInput.addEventListener('keydown', (event) => {
             const tile = document.querySelector(`[data-pokemon-id='${pokemon.id}']`);
             tile.innerHTML = `<img src="${pokemon.image}" alt="${pokemon.name}">`;
             tile.classList.add('revealed');
-            pokemon.types.forEach(type => tile.classList.add(type));
+            if (pokemon.isShiny) {
+                tile.classList.add('shiny');
+            }
+            if (pokemon.types.length === 1) {
+                tile.style.backgroundColor = typeColors[pokemon.types[0]];
+            } else {
+                tile.style.background = `linear-gradient(to right, ${typeColors[pokemon.types[0]]}, ${typeColors[pokemon.types[1]]})`;
+            }
             feedback.textContent = 'Correct!';
             feedback.className = 'correct';
             if (!isMuted) {
@@ -133,24 +199,42 @@ window.addEventListener('click', (event) => {
     }
 });
 
-pokemonGrid.addEventListener('click', async (event) => {
+async function displayPokemonModal(pokemon) {
+    let description;
+    if (pokemon.id === 0) {
+        description = pokemon.description;
+    } else {
+        try {
+            const speciesResponse = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemon.id}`);
+            const speciesData = await speciesResponse.json();
+            const flavorTextEntry = speciesData.flavor_text_entries.find(entry => entry.language.name === 'en');
+            description = flavorTextEntry ? flavorTextEntry.flavor_text.replace(/[\n\f]/g, ' ') : 'No description available.';
+        } catch (error) {
+            console.error(`Error fetching description for Pokémon ID ${pokemon.id}:`, error);
+            description = 'Could not retrieve description.';
+        }
+    }
+
+    document.getElementById('pokemon-name').textContent = pokemon.name;
+    const pokemonImage = document.getElementById('pokemon-image');
+    pokemonImage.src = pokemon.image;
+    pokemonImage.classList.toggle('shiny', pokemon.isShiny);
+    document.getElementById('pokemon-height').textContent = `${pokemon.height / 10} m`;
+    document.getElementById('pokemon-weight').textContent = `${pokemon.weight / 10} kg`;
+    document.getElementById('pokemon-abilities').textContent = pokemon.abilities.map(a => a.ability.name).join(', ');
+    document.getElementById('pokemon-description').textContent = description;
+
+    modal.style.display = 'block';
+}
+
+pokemonGrid.addEventListener('click', (event) => {
     const tile = event.target.closest('.pokemon-tile');
     if (tile && tile.classList.contains('revealed')) {
         const pokemonId = tile.dataset.pokemonId;
         const pokemon = pokemonData.find(p => p.id == pokemonId);
-
-        const speciesResponse = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemonId}`);
-        const speciesData = await speciesResponse.json();
-        const description = speciesData.flavor_text_entries.find(entry => entry.language.name === 'en').flavor_text;
-
-        document.getElementById('pokemon-name').textContent = pokemon.name;
-        document.getElementById('pokemon-image').src = pokemon.image;
-        document.getElementById('pokemon-height').textContent = `${pokemon.height / 10} m`;
-        document.getElementById('pokemon-weight').textContent = `${pokemon.weight / 10} kg`;
-        document.getElementById('pokemon-abilities').textContent = pokemon.abilities.map(a => a.ability.name).join(', ');
-        document.getElementById('pokemon-description').textContent = description;
-
-        modal.style.display = 'block';
+        if (pokemon) {
+            displayPokemonModal(pokemon);
+        }
     }
 });
 
