@@ -78,7 +78,7 @@ async function fetchPokemonData() {
 
             let isShiny = shinyPokemonIds.includes(pokemonDetails.id);
             if (!localStorage.getItem('shinyPokemon')) {
-                isShiny = Math.random() < 1 / 150;
+                isShiny = Math.random() < 1 / 100;
             }
 
             return {
