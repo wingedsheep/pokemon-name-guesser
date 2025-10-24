@@ -34,14 +34,14 @@ const typeColors = {
 };
 
 const gymLeaders = [
-    { name: "Brock", badge: "Boulder Badge", pokemons: [74, 95] },
-    { name: "Misty", badge: "Cascade Badge", pokemons: [120, 121] },
-    { name: "Lt. Surge", badge: "Thunder Badge", pokemons: [100, 25, 26] },
-    { name: "Erika", badge: "Rainbow Badge", pokemons: [71, 114, 45] },
-    { name: "Koga", badge: "Soul Badge", pokemons: [109, 89, 109, 110] },
-    { name: "Sabrina", badge: "Marsh Badge", pokemons: [64, 122, 49, 65] },
-    { name: "Blaine", badge: "Volcano Badge", pokemons: [58, 77, 78, 59] },
-    { name: "Giovanni", badge: "Earth Badge", pokemons: [111, 51, 31, 34, 112] }
+    { name: "Brock", badge: "Boulder Badge", pokemons: [74, 95], image: "http://play.pokemonshowdown.com/sprites/trainers/brock.png" },
+    { name: "Misty", badge: "Cascade Badge", pokemons: [120, 121], image: "http://play.pokemonshowdown.com/sprites/trainers/misty.png" },
+    { name: "Lt. Surge", badge: "Thunder Badge", pokemons: [100, 25, 26], image: "http://play.pokemonshowdown.com/sprites/trainers/ltsurge.png" },
+    { name: "Erika", badge: "Rainbow Badge", pokemons: [71, 114, 45], image: "http://play.pokemonshowdown.com/sprites/trainers/erika.png" },
+    { name: "Koga", badge: "Soul Badge", pokemons: [109, 89, 109, 110], image: "http://play.pokemonshowdown.com/sprites/trainers/koga.png" },
+    { name: "Sabrina", badge: "Marsh Badge", pokemons: [64, 122, 49, 65], image: "http://play.pokemonshowdown.com/sprites/trainers/sabrina.png" },
+    { name: "Blaine", badge: "Volcano Badge", pokemons: [58, 77, 78, 59], image: "http://play.pokemonshowdown.com/sprites/trainers/blaine.png" },
+    { name: "Giovanni", badge: "Earth Badge", pokemons: [111, 51, 31, 34, 112], image: "http://play.pokemonshowdown.com/sprites/trainers/giovanni.png" }
 ];
 
 let pokemonData = [];
@@ -440,6 +440,7 @@ window.addEventListener('click', (event) => {
 function displayGymLeaderModal(leader) {
     document.getElementById('gym-leader-name').textContent = leader.name;
     document.getElementById('gym-leader-badge').textContent = leader.badge;
+    document.getElementById('gym-leader-image').src = leader.image;
 
     const pokemonGrid = document.getElementById('gym-leader-pokemon-grid');
     pokemonGrid.innerHTML = '';
