@@ -219,9 +219,8 @@ h1 {
 #pokemon-image, #gym-leader-image {
     image-rendering: pixelated;
     display: block;
-    margin: 20px auto;
-    width: 150px;
-    height: 150px;
+    width: 100%;
+    clip-path: inset(0 32px 0 0);
 }
 
 #gym-leader-pokemon-grid {
