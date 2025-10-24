@@ -46,6 +46,7 @@ let pokemonData = [];
 let isMuted = false;
 let almostCorrectPokemon = null;
 let score = 0;
+let gen2Unlocked = false;
 
 function normalizeName(name) {
     return name.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -102,9 +103,10 @@ async function fetchPokemonData() {
 }
 
 async function loadGameState() {
+    gen2Unlocked = localStorage.getItem('gen2Unlocked') === 'true';
     const revealedPokemonIds = JSON.parse(localStorage.getItem('revealedPokemon')) || [];
     score = revealedPokemonIds.length;
-    scoreCounter.textContent = `Score: ${score} / 251`;
+    updateScoreDisplay();
 
     for (const id of revealedPokemonIds) {
         let pokemon = pokemonData.find(p => p.id === id);
@@ -174,6 +176,11 @@ function revealPokemon(pokemon, tile) {
     pokemon.types.forEach(type => tile.classList.add(type));
 }
 
+function updateScoreDisplay() {
+    const total = gen2Unlocked ? 251 : 151;
+    scoreCounter.textContent = `Score: ${score} / ${total}`;
+}
+
 function saveGameState() {
     const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')].map(tile => parseInt(tile.dataset.pokemonId));
     localStorage.setItem('revealedPokemon', JSON.stringify(revealedPokemonIds));
@@ -181,6 +188,7 @@ function saveGameState() {
 
     const shinyPokemonIds = pokemonData.filter(p => p.isShiny).map(p => p.id);
     localStorage.setItem('shinyPokemon', JSON.stringify(shinyPokemonIds));
+    localStorage.setItem('gen2Unlocked', gen2Unlocked);
 }
 
 pokemonInput.addEventListener('keydown', async (event) => {
@@ -245,7 +253,7 @@ pokemonInput.addEventListener('keydown', async (event) => {
             feedback.textContent = 'Correct!';
             feedback.className = 'correct';
             score++;
-            scoreCounter.textContent = `Score: ${score} / 251`;
+            updateScoreDisplay();
             saveGameState();
             if (!isMuted) {
                 const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${pokemon.name}.mp3`;
@@ -281,12 +289,15 @@ pokemonInput.addEventListener('keydown', async (event) => {
                         pokemonData.sort((a, b) => a.id - b.id);
 
                         const tile = document.querySelector(`[data-pokemon-id='${newPokemon.id}']`);
+                        if (!gen2Unlocked) {
+                            gen2Unlocked = true;
+                        }
                         revealPokemon(newPokemon, tile);
 
                         feedback.textContent = 'Correct!';
                         feedback.className = 'correct';
                         score++;
-                        scoreCounter.textContent = `Score: ${score} / 251`;
+                        updateScoreDisplay();
                         saveGameState();
                         if (!isMuted) {
                             const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${newPokemon.name}.mp3`;
@@ -352,6 +363,7 @@ resetButton.addEventListener('click', () => {
     localStorage.removeItem('revealedPokemon');
     localStorage.removeItem('pokemonGameScore');
     localStorage.removeItem('shinyPokemon');
+    localStorage.removeItem('gen2Unlocked');
     location.reload();
 });
 
