@@ -8,6 +8,11 @@ const closeButton = document.querySelector('.close-button');
 
 let pokemonData = [];
 let isMuted = false;
+let almostCorrectPokemon = null;
+
+function normalizeName(name) {
+    return name.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
 
 async function fetchPokemonData() {
     try {
@@ -49,9 +54,11 @@ function createPokemonGrid() {
 pokemonInput.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
         const guessedName = pokemonInput.value.toLowerCase();
-        const pokemon = pokemonData.find(p => p.name === guessedName);
+        const normalizedGuessedName = normalizeName(guessedName);
+        const pokemon = pokemonData.find(p => normalizeName(p.name) === normalizedGuessedName);
 
         if (pokemon) {
+            almostCorrectPokemon = null;
             const tile = document.querySelector(`[data-pokemon-id='${pokemon.id}']`);
             tile.innerHTML = `<img src="${pokemon.image}" alt="${pokemon.name}">`;
             tile.classList.add('revealed');
@@ -64,20 +71,27 @@ pokemonInput.addEventListener('keydown', (event) => {
                 audio.play();
             }
         } else {
-            const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')].map(tile => parseInt(tile.dataset.pokemonId));
-            const unrevealedPokemon = pokemonData.filter(p => !revealedPokemonIds.includes(p.id));
-            let almostCorrect = false;
-            for (const p of unrevealedPokemon) {
-                if (levenshteinDistance(guessedName, p.name) <= 2) {
-                    feedback.textContent = 'Almost there!';
-                    feedback.className = 'incorrect';
-                    almostCorrect = true;
-                    break;
-                }
-            }
-            if (!almostCorrect) {
-                feedback.textContent = 'Wrong!';
+            if (almostCorrectPokemon) {
+                feedback.textContent = `The correct spelling was ${almostCorrectPokemon.name}!`;
                 feedback.className = 'incorrect';
+                almostCorrectPokemon = null;
+            } else {
+                const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')].map(tile => parseInt(tile.dataset.pokemonId));
+                const unrevealedPokemon = pokemonData.filter(p => !revealedPokemonIds.includes(p.id));
+                let foundAlmostCorrect = false;
+                for (const p of unrevealedPokemon) {
+                    if (levenshteinDistance(normalizedGuessedName, normalizeName(p.name)) <= 2) {
+                        almostCorrectPokemon = p;
+                        feedback.textContent = 'You are very close! Almost there!';
+                        feedback.className = 'incorrect';
+                        foundAlmostCorrect = true;
+                        break;
+                    }
+                }
+                if (!foundAlmostCorrect) {
+                    feedback.textContent = 'Wrong!';
+                    feedback.className = 'incorrect';
+                }
             }
             pokemonInput.classList.add('shake');
             setTimeout(() => pokemonInput.classList.remove('shake'), 500);
@@ -94,8 +108,8 @@ hintButton.addEventListener('click', () => {
 
     if (unrevealedPokemon.length > 0) {
         const randomPokemon = unrevealedPokemon[Math.floor(Math.random() * unrevealedPokemon.length)];
-        const randomType = randomPokemon.types[Math.floor(Math.random() * randomPokemon.types.length)];
-        feedback.textContent = `Hint: There's a ${randomType} type Pokémon yet to be guessed!`;
+        const hint = `${randomPokemon.name.charAt(0)}...${randomPokemon.name.charAt(randomPokemon.name.length - 1)}`;
+        feedback.textContent = `Hint: There is a Pokémon that starts with '${randomPokemon.name.charAt(0)}' and ends with '${randomPokemon.name.charAt(randomPokemon.name.length - 1)}'.`;
         feedback.className = '';
     } else {
         feedback.textContent = 'All Pokémon have been guessed!';
