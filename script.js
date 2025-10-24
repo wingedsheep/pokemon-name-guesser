@@ -79,6 +79,11 @@ function loadGameState() {
             const tile = document.querySelector(`[data-pokemon-id='${pokemon.id}']`);
             tile.innerHTML = `<img src="${pokemon.image}" alt="${pokemon.name}">`;
             tile.classList.add('revealed');
+            if (pokemon.types.length === 1) {
+                tile.style.backgroundColor = typeColors[pokemon.types[0]];
+            } else {
+                tile.style.background = `linear-gradient(to right, ${typeColors[pokemon.types[0]]}, ${typeColors[pokemon.types[1]]})`;
+            }
             pokemon.types.forEach(type => tile.classList.add(type));
         }
     });
