@@ -389,6 +389,42 @@ pokemonInput.addEventListener('keydown', async (event) => {
             return;
         }
 
+        if (normalizedGuessedName === 'nidoran') {
+            const nidorans = [
+                pokemonData.find(p => p.name === 'nidoran-f'),
+                pokemonData.find(p => p.name === 'nidoran-m')
+            ].filter(Boolean);
+
+            let newlyRevealed = 0;
+
+            for (const nidoran of nidorans) {
+                const tile = document.querySelector(`[data-pokemon-id='${nidoran.id}']`);
+                if (tile && !tile.classList.contains('revealed')) {
+                    revealPokemon(nidoran, tile);
+                    newlyRevealed++;
+                }
+            }
+
+            if (newlyRevealed > 0) {
+                feedback.textContent = 'Correct!';
+                feedback.className = 'correct';
+                score += newlyRevealed;
+                updateScoreDisplay();
+                saveGameState();
+                if (!isMuted) {
+                    new Audio(`https://play.pokemonshowdown.com/audio/cries/nidoranf.mp3`).play();
+                    new Audio(`https://play.pokemonshowdown.com/audio/cries/nidoranm.mp3`).play();
+                }
+            } else {
+                feedback.textContent = 'You have already revealed both Nidorans!';
+                feedback.className = 'incorrect';
+            }
+
+            pokemonInput.value = '';
+            setTimeout(() => feedback.textContent = '', 2000);
+            return;
+        }
+
         if (normalizedGuessedName === 'missingno') {
             document.body.classList.add('glitch');
             setTimeout(() => document.body.classList.remove('glitch'), 1500);
