@@ -85,6 +85,12 @@ h1 {
 
 .pokemon-tile.revealed {
     border: 2px inset #555;
+    visibility: visible;
+}
+
+.gen2-placeholder {
+    visibility: hidden;
+    cursor: default;
 }
 
 
@@ -207,7 +213,7 @@ h1 {
     cursor: pointer;
 }
 
-#pokemon-image {
+#pokemon-image, #gym-leader-image {
     image-rendering: pixelated;
     display: block;
     margin: 20px auto;
