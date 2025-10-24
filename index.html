@@ -4,11 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pokémon Guessing Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h1>Pokémon Guessing Game</h1>
-    <input type="text" id="pokemon-input" placeholder="Enter a Pokémon name">
+    <div class="controls">
+        <input type="text" id="pokemon-input" placeholder="Enter a Pokémon name">
+        <button id="mute-button">Mute</button>
+    </div>
     <div id="feedback"></div>
     <div id="pokemon-grid"></div>
 
