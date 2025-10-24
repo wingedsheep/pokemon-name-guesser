@@ -162,6 +162,7 @@ function createPokemonGrid() {
 function revealPokemon(pokemon, tile) {
     tile.innerHTML = `<img src="${pokemon.image}" alt="${pokemon.name}">`;
     tile.classList.add('revealed');
+    tile.classList.remove('gen2-placeholder');
     if (pokemon.isShiny) {
         tile.classList.add('shiny');
     }
