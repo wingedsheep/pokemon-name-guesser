@@ -17,7 +17,7 @@ h1 {
     margin-bottom: 20px;
 }
 
-#mute-button, #hint-button {
+#mute-button, #hint-button, #reset-button {
     background-color: #3e3e3e;
     color: #f0f0f0;
     border: 2px outset #555;
