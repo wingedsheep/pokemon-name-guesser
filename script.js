@@ -142,7 +142,7 @@ pokemonInput.addEventListener('keydown', (event) => {
             const missingNo = {
                 name: 'MissingNo.',
                 id: 0,
-                image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAARlJREFUeJzt2EFOQzEMBECfsvsS2Qe73ETnD/A8v4Qvxx1sXpAHanYmIBAyM8/sXxzC//4wz3w/h3d/7kP84x9+A8AfwB9g/g3gC/D/fsAf4P/9gH/A//sB/wD/7wf8A/y/H/AP8P9+gD8A/gD/bwD8Ab5A/j/A7wP8Af6/H/AP8P9+wD/A//sB/wD/7wf8A/y/H/AP8P9+wD/A//sB/wD/bwb8AfgD/L8B8A/w/37AP8D/+wH/AP/vB/wD/L8f8A/w/37AP8D/+wH/AP/vB/wD/L8f8AfwB/j/fgD8AX7A/zcDfgD+AP8vAPwB/gD/rwf8Af4A/28G/AG+QP8vAPgD/AH+v/4D/gD/bwD8AX7A/jsBfwD+AP9vBvwB/gD/bwD8AX7A/04AfgD+AP8vAPwB/gD/bwD8Ab5A/3EBPwB/gP83A/4A/wD/rwf8AfgD/L8B8A/w/3bA/gH+3w74A/y/H/AP8P92wP4B/t8O+AP8vx/wB/gD/L8d8A/w/wYAAAAASUVORK5CYII=',
+                image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzAwMCIvPgogIDxyZWN0IHg9IjEwIiB5PSIxMCIgd2lkdGg9IjIwIiBoZWlnaHQ9IjcwIiBmaWxsPSIjZmYwMGZmIi8+CiAgPHJlY3QgeD0iNDAiIHk9IjIwIiB3aWR0aD0iMTAiIGhlaWdodD0iNTAiIGZpbGw9IiMwMGZmZmYiLz4KICA8cGF0aCBkPSJNIDYwIDEwIEwgNzAgNTAgTCA2MCA5MCIgc3Ryb2tlPSIjZmYwMDAwIiBzdHJva2Utd2lkdGg9IjUiIGZpbGw9Im5vbmUiLz4KICA8cmVjdCB4PSI4MCIgeT0iMTAiIHdpZHRoPSIxMCIgaGVpZ2h0PSI4MCIgZmlsbD0iIzAwZmYwMCIvPgogIDxyZWN0IHg9IjUiIHk9IjMwIiB3aWR0aD0iOTAiIGhlaWdodD0iNSIgZmlsbD0iI2ZmZmZmZiIgc3R5bGU9Im1peC1ibGVuZC1tb2RlOiBkaWZmZXJlbmNlOyIvPgogIDxyZWN0IHg9IjUiIHk9IjYwIiB3aWR0aD0iOTAiIGhlaWdodD0iNSIgZmlsbD0iI2ZmZmZmZiIgc3R5bGU9Im1peC1ibGVuZC1tb2RlOiBkaWZmZXJlbmNlOyIvPgo8L3N2Zz4K',
                 isShiny: false,
                 types: ['bird', 'normal'],
                 height: 30,
@@ -159,7 +159,7 @@ pokemonInput.addEventListener('keydown', (event) => {
             if (!tile) {
                 tile = document.createElement('div');
                 tile.classList.add('pokemon-tile');
-                pokemonGrid.appendChild(tile);
+                pokemonGrid.prepend(tile);
             }
 
             tile.dataset.pokemonId = missingNo.id;
