@@ -159,7 +159,7 @@ async function loadGameState() {
                 revealPokemon(pokemon, tile);
             }
         }
-    });
+    }
 
     if (localStorage.getItem('missingNoRevealed') === 'true') {
         const missingNo = {
