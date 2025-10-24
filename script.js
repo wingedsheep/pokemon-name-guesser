@@ -44,10 +44,16 @@ async function fetchPokemonData() {
         const data = await response.json();
         const pokemonList = data.results;
 
+        const shinyPokemonIds = JSON.parse(localStorage.getItem('shinyPokemon')) || [];
+
         const pokemonPromises = pokemonList.map(async (pokemon) => {
             const response = await fetch(pokemon.url);
             const pokemonDetails = await response.json();
-            const isShiny = Math.random() < 1 / 150;
+
+            let isShiny = shinyPokemonIds.includes(pokemonDetails.id);
+            if (!localStorage.getItem('shinyPokemon')) {
+                isShiny = Math.random() < 1 / 150;
+            }
 
             return {
                 name: pokemonDetails.name,
@@ -73,12 +79,16 @@ function loadGameState() {
     const revealedPokemonIds = JSON.parse(localStorage.getItem('revealedPokemon')) || [];
     score = revealedPokemonIds.length;
     scoreCounter.textContent = `Score: ${score} / 151`;
+
     revealedPokemonIds.forEach(id => {
         const pokemon = pokemonData.find(p => p.id === id);
         if (pokemon) {
             const tile = document.querySelector(`[data-pokemon-id='${pokemon.id}']`);
             tile.innerHTML = `<img src="${pokemon.image}" alt="${pokemon.name}">`;
             tile.classList.add('revealed');
+            if (pokemon.isShiny) {
+                tile.classList.add('shiny');
+            }
             if (pokemon.types.length === 1) {
                 tile.style.backgroundColor = typeColors[pokemon.types[0]];
             } else {
@@ -103,6 +113,9 @@ function saveGameState() {
     const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')].map(tile => parseInt(tile.dataset.pokemonId));
     localStorage.setItem('revealedPokemon', JSON.stringify(revealedPokemonIds));
     localStorage.setItem('pokemonGameScore', score);
+
+    const shinyPokemonIds = pokemonData.filter(p => p.isShiny).map(p => p.id);
+    localStorage.setItem('shinyPokemon', JSON.stringify(shinyPokemonIds));
 }
 
 pokemonInput.addEventListener('keydown', (event) => {
@@ -224,6 +237,7 @@ hintButton.addEventListener('click', () => {
 resetButton.addEventListener('click', () => {
     localStorage.removeItem('revealedPokemon');
     localStorage.removeItem('pokemonGameScore');
+    localStorage.removeItem('shinyPokemon');
     location.reload();
 });
 
