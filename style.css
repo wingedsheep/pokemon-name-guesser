@@ -87,6 +87,11 @@ h1 {
     border: 2px inset #555;
 }
 
+.gen2-placeholder {
+    background-color: #222;
+    cursor: default;
+}
+
 
 .pokemon-tile img {
     max-width: 90%;

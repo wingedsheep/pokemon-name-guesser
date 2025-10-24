@@ -104,7 +104,7 @@ async function fetchPokemonData() {
 async function loadGameState() {
     const revealedPokemonIds = JSON.parse(localStorage.getItem('revealedPokemon')) || [];
     score = revealedPokemonIds.length;
-    scoreCounter.textContent = `Score: ${score} / 151`;
+    scoreCounter.textContent = `Score: ${score} / 251`;
 
     for (const id of revealedPokemonIds) {
         let pokemon = pokemonData.find(p => p.id === id);
@@ -130,20 +130,6 @@ async function loadGameState() {
                 };
                 pokemonData.push(pokemon);
                 pokemonData.sort((a, b) => a.id - b.id);
-
-                const tile = document.createElement('div');
-                tile.classList.add('pokemon-tile');
-                tile.dataset.pokemonId = pokemon.id;
-
-                const tiles = Array.from(pokemonGrid.children);
-                const nextPokemonTile = tiles.find(t => parseInt(t.dataset.pokemonId) > pokemon.id);
-
-                if (nextPokemonTile) {
-                    pokemonGrid.insertBefore(tile, nextPokemonTile);
-                } else {
-                    pokemonGrid.appendChild(tile);
-                }
-
             } catch (error) {
                 console.error(`Error fetching revealed Gen 2 Pokémon with id ${id}:`, error);
                 continue;
@@ -160,11 +146,15 @@ async function loadGameState() {
 }
 
 function createPokemonGrid() {
-    for (let i = 1; i <= 151; i++) {
+    for (let i = 1; i <= 251; i++) {
         const tile = document.createElement('div');
         tile.classList.add('pokemon-tile');
-        tile.textContent = i;
         tile.dataset.pokemonId = i;
+        if (i > 151) {
+            tile.classList.add('gen2-placeholder');
+        } else {
+            tile.textContent = i;
+        }
         pokemonGrid.appendChild(tile);
     }
 }
@@ -254,7 +244,7 @@ pokemonInput.addEventListener('keydown', async (event) => {
             feedback.textContent = 'Correct!';
             feedback.className = 'correct';
             score++;
-            scoreCounter.textContent = `Score: ${score} / 151`;
+            scoreCounter.textContent = `Score: ${score} / 251`;
             saveGameState();
             if (!isMuted) {
                 const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${pokemon.name}.mp3`;
@@ -289,25 +279,13 @@ pokemonInput.addEventListener('keydown', async (event) => {
                         pokemonData.push(newPokemon);
                         pokemonData.sort((a, b) => a.id - b.id);
 
-                        const tile = document.createElement('div');
-                        tile.classList.add('pokemon-tile');
-                        tile.dataset.pokemonId = newPokemon.id;
-
-                        const tiles = Array.from(pokemonGrid.children);
-                        const nextPokemonTile = tiles.find(t => parseInt(t.dataset.pokemonId) > newPokemon.id);
-
-                        if (nextPokemonTile) {
-                            pokemonGrid.insertBefore(tile, nextPokemonTile);
-                        } else {
-                            pokemonGrid.appendChild(tile);
-                        }
-
+                        const tile = document.querySelector(`[data-pokemon-id='${newPokemon.id}']`);
                         revealPokemon(newPokemon, tile);
 
                         feedback.textContent = 'Correct!';
                         feedback.className = 'correct';
                         score++;
-                        scoreCounter.textContent = `Score: ${score} / 151`;
+                        scoreCounter.textContent = `Score: ${score} / 251`;
                         saveGameState();
                         if (!isMuted) {
                             const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${newPokemon.name}.mp3`;
