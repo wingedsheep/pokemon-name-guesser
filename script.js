@@ -616,7 +616,14 @@ async function displayPokemonModal(pokemon) {
 
     document.getElementById('pokemon-name').textContent = pokemon.name;
     const pokemonImage = document.getElementById('pokemon-image');
-    pokemonImage.src = pokemon.image;
+    const localImagePath = `pokedex-images/${pokemon.id}.png`;
+
+    pokemonImage.onerror = () => {
+        pokemonImage.src = pokemon.image;
+        pokemonImage.onerror = null; // Prevent infinite loops
+    };
+    pokemonImage.src = localImagePath;
+
     pokemonImage.classList.toggle('shiny', pokemon.isShiny);
     document.getElementById('pokemon-height').textContent = `${pokemon.height / 10} m`;
     document.getElementById('pokemon-weight').textContent = `${pokemon.weight / 10} kg`;
