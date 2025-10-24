@@ -38,6 +38,19 @@ function normalizeName(name) {
     return name.toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
+function transformDitto() {
+    const dittoTile = document.querySelector('[data-pokemon-id="132"]');
+    if (dittoTile && dittoTile.classList.contains('revealed')) {
+        const originalImage = dittoTile.innerHTML;
+        const randomPokemon = pokemonData[Math.floor(Math.random() * pokemonData.length)];
+        dittoTile.innerHTML = `<img src="${randomPokemon.image}" alt="${randomPokemon.name}">`;
+
+        setTimeout(() => {
+            dittoTile.innerHTML = originalImage;
+        }, 1000);
+    }
+}
+
 async function fetchPokemonData() {
     try {
         const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=151');
@@ -307,3 +320,4 @@ function levenshteinDistance(a, b) {
 }
 
 fetchPokemonData();
+setInterval(transformDitto, 30000);
