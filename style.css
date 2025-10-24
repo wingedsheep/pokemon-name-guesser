@@ -213,7 +213,7 @@ h1 {
     cursor: pointer;
 }
 
-#pokemon-image {
+#pokemon-image, #gym-leader-image {
     image-rendering: pixelated;
     display: block;
     margin: 20px auto;
