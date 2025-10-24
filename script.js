@@ -48,6 +48,7 @@ let pokemonData = [];
 let isMuted = false;
 let almostCorrectPokemon = null;
 let score = 0;
+let gen2Unlocked = false;
 
 function normalizeName(name) {
     return name.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -105,9 +106,10 @@ async function fetchPokemonData() {
 }
 
 async function loadGameState() {
+    gen2Unlocked = localStorage.getItem('gen2Unlocked') === 'true';
     const revealedPokemonIds = JSON.parse(localStorage.getItem('revealedPokemon')) || [];
     score = revealedPokemonIds.length;
-    scoreCounter.textContent = `Score: ${score} / 151`;
+    updateScoreDisplay();
 
     for (const id of revealedPokemonIds) {
         let pokemon = pokemonData.find(p => p.id === id);
@@ -133,20 +135,6 @@ async function loadGameState() {
                 };
                 pokemonData.push(pokemon);
                 pokemonData.sort((a, b) => a.id - b.id);
-
-                const tile = document.createElement('div');
-                tile.classList.add('pokemon-tile');
-                tile.dataset.pokemonId = pokemon.id;
-
-                const tiles = Array.from(pokemonGrid.children);
-                const nextPokemonTile = tiles.find(t => parseInt(t.dataset.pokemonId) > pokemon.id);
-
-                if (nextPokemonTile) {
-                    pokemonGrid.insertBefore(tile, nextPokemonTile);
-                } else {
-                    pokemonGrid.appendChild(tile);
-                }
-
             } catch (error) {
                 console.error(`Error fetching revealed Gen 2 Pokémon with id ${id}:`, error);
                 continue;
@@ -190,11 +178,15 @@ async function loadGameState() {
 }
 
 function createPokemonGrid() {
-    for (let i = 1; i <= 151; i++) {
+    for (let i = 1; i <= 251; i++) {
         const tile = document.createElement('div');
         tile.classList.add('pokemon-tile');
-        tile.textContent = i;
         tile.dataset.pokemonId = i;
+        if (i > 151) {
+            tile.classList.add('gen2-placeholder');
+        } else {
+            tile.textContent = i;
+        }
         pokemonGrid.appendChild(tile);
     }
 }
@@ -202,6 +194,7 @@ function createPokemonGrid() {
 function revealPokemon(pokemon, tile) {
     tile.innerHTML = `<img src="${pokemon.image}" alt="${pokemon.name}">`;
     tile.classList.add('revealed');
+    tile.classList.remove('gen2-placeholder');
     if (pokemon.isShiny) {
         tile.classList.add('shiny');
     }
@@ -213,6 +206,11 @@ function revealPokemon(pokemon, tile) {
     pokemon.types.forEach(type => tile.classList.add(type));
 }
 
+function updateScoreDisplay() {
+    const total = gen2Unlocked ? 251 : 151;
+    scoreCounter.textContent = `Score: ${score} / ${total}`;
+}
+
 function saveGameState() {
     const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')]
         .map(tile => parseInt(tile.dataset.pokemonId))
@@ -222,6 +220,7 @@ function saveGameState() {
 
     const shinyPokemonIds = pokemonData.filter(p => p.isShiny).map(p => p.id);
     localStorage.setItem('shinyPokemon', JSON.stringify(shinyPokemonIds));
+    localStorage.setItem('gen2Unlocked', gen2Unlocked);
 
     if (document.querySelector('[data-pokemon-id="0"].revealed')) {
         localStorage.setItem('missingNoRevealed', 'true');
@@ -295,7 +294,7 @@ pokemonInput.addEventListener('keydown', async (event) => {
             feedback.textContent = 'Correct!';
             feedback.className = 'correct';
             score++;
-            scoreCounter.textContent = `Score: ${score} / 151`;
+            updateScoreDisplay();
             saveGameState();
             if (!isMuted) {
                 const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${pokemon.name}.mp3`;
@@ -330,25 +329,16 @@ pokemonInput.addEventListener('keydown', async (event) => {
                         pokemonData.push(newPokemon);
                         pokemonData.sort((a, b) => a.id - b.id);
 
-                        const tile = document.createElement('div');
-                        tile.classList.add('pokemon-tile');
-                        tile.dataset.pokemonId = newPokemon.id;
-
-                        const tiles = Array.from(pokemonGrid.children);
-                        const nextPokemonTile = tiles.find(t => parseInt(t.dataset.pokemonId) > newPokemon.id);
-
-                        if (nextPokemonTile) {
-                            pokemonGrid.insertBefore(tile, nextPokemonTile);
-                        } else {
-                            pokemonGrid.appendChild(tile);
+                        const tile = document.querySelector(`[data-pokemon-id='${newPokemon.id}']`);
+                        if (!gen2Unlocked) {
+                            gen2Unlocked = true;
                         }
-
                         revealPokemon(newPokemon, tile);
 
                         feedback.textContent = 'Correct!';
                         feedback.className = 'correct';
                         score++;
-                        scoreCounter.textContent = `Score: ${score} / 151`;
+                        updateScoreDisplay();
                         saveGameState();
                         if (!isMuted) {
                             const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${newPokemon.name}.mp3`;
@@ -414,6 +404,7 @@ resetButton.addEventListener('click', () => {
     localStorage.removeItem('revealedPokemon');
     localStorage.removeItem('pokemonGameScore');
     localStorage.removeItem('shinyPokemon');
+    localStorage.removeItem('gen2Unlocked');
     location.reload();
 });
 

@@ -85,6 +85,12 @@ h1 {
 
 .pokemon-tile.revealed {
     border: 2px inset #555;
+    visibility: visible;
+}
+
+.gen2-placeholder {
+    visibility: hidden;
+    cursor: default;
 }
 
 
