@@ -13,10 +13,22 @@
     <h1>Pokémon Guessing Game</h1>
     <div class="controls">
         <input type="text" id="pokemon-input" placeholder="Enter a Pokémon name">
-        <button id="mute-button">Mute</button>
+        <button id="mute-button"></button>
     </div>
     <div id="feedback"></div>
     <div id="pokemon-grid"></div>
+
+    <div id="pokedex-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 id="pokemon-name"></h2>
+            <img id="pokemon-image" src="" alt="">
+            <p><strong>Height:</strong> <span id="pokemon-height"></span></p>
+            <p><strong>Weight:</strong> <span id="pokemon-weight"></span></p>
+            <p><strong>Abilities:</strong> <span id="pokemon-abilities"></span></p>
+            <p id="pokemon-description"></p>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
