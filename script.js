@@ -11,6 +11,7 @@ const gymLeaderModal = document.getElementById('gym-leader-modal');
 const itemModal = document.getElementById('item-modal');
 const achievementsModal = document.getElementById('achievements-modal');
 const oakModal = document.getElementById('oak-modal');
+const championModal = document.getElementById('champion-modal');
 const pokedexCloseButton = document.querySelector('#pokedex-modal .close-button');
 const prevPokemonButton = document.getElementById('prev-pokemon');
 const nextPokemonButton = document.getElementById('next-pokemon');
@@ -20,6 +21,8 @@ const achievementsButton = document.getElementById('achievements-button');
 const achievementsModalCloseButton = document.querySelector('#achievements-modal .close-button');
 const oakModalCloseButton = document.getElementById('oak-modal-close-button');
 const oakModalXButton = document.querySelector('#oak-modal .close-button');
+const championModalCloseButton = document.getElementById('champion-modal-close-button');
+const championModalXButton = document.querySelector('#champion-modal .close-button');
 
 let unlockedAchievements = [];
 let guessedWithoutHints = [];
@@ -656,6 +659,7 @@ resetButton.addEventListener('click', () => {
     localStorage.removeItem('missingNoRevealed')
     localStorage.removeItem('guessedWithoutHints');
     localStorage.removeItem('oakModalShown');
+    localStorage.removeItem('championModalShown');
     localStorage.removeItem('hintsUsed');
     localStorage.removeItem('gameStartTime');
     location.reload();
@@ -703,10 +707,36 @@ window.addEventListener('click', (event) => {
     if (event.target == oakModal) {
         oakModal.style.display = 'none';
     }
+    if (event.target == championModal) {
+        championModal.style.display = 'none';
+    }
 });
 
 function showOakModal() {
     oakModal.style.display = 'block';
+}
+
+function showChampionModal() {
+    const startTime = parseInt(localStorage.getItem('gameStartTime'));
+    const endTime = new Date().getTime();
+    const timeTaken = endTime - startTime;
+
+    const hours = Math.floor(timeTaken / (1000 * 60 * 60));
+    const minutes = Math.floor((timeTaken % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeTaken % (1000 * 60)) / 1000);
+
+    let timeString = '';
+    if (hours > 0) {
+        timeString += `${hours}h `;
+    }
+    if (minutes > 0) {
+        timeString += `${minutes}m `;
+    }
+    timeString += `${seconds}s`;
+
+    document.getElementById('champion-time').textContent = timeString;
+    document.getElementById('champion-hints').textContent = hintsUsed;
+    championModal.style.display = 'block';
 }
 
 function displayMissingNoHint() {
@@ -748,7 +778,10 @@ function processCorrectGuess(newlyRevealedCount = 1) {
         .filter(id => id >= 1 && id <= 151);
 
     if (revealedPokemonIds.length === 151) {
-        if (Math.random() < 0.5) {
+        if (!localStorage.getItem('championModalShown')) {
+            showChampionModal();
+            localStorage.setItem('championModalShown', 'true');
+        } else if (Math.random() < 0.5) {
             displayMissingNoHint();
         } else {
             displayGen2Hint();
@@ -762,6 +795,14 @@ oakModalCloseButton.addEventListener('click', () => {
 
 oakModalXButton.addEventListener('click', () => {
     oakModal.style.display = 'none';
+});
+
+championModalCloseButton.addEventListener('click', () => {
+    championModal.style.display = 'none';
+});
+
+championModalXButton.addEventListener('click', () => {
+    championModal.style.display = 'none';
 });
 
 prevPokemonButton.addEventListener('click', () => navigatePokemon(-1));
