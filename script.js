@@ -785,6 +785,7 @@ async function displayPokemonModal(pokemon) {
     pokemonImage.src = localImagePath;
 
     pokemonImage.classList.toggle('shiny', pokemon.isShiny);
+    document.querySelector('#pokedex-modal .modal-content').classList.toggle('shiny-card', pokemon.isShiny);
     document.getElementById('pokemon-height').textContent = `${pokemon.height / 10} m`;
     document.getElementById('pokemon-weight').textContent = `${pokemon.weight / 10} kg`;
     document.getElementById('pokemon-abilities').textContent = pokemon.abilities.map(a => a.ability.name).join(', ');
