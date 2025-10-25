@@ -9,6 +9,8 @@ const modal = document.getElementById('pokedex-modal');
 const gymLeaderModal = document.getElementById('gym-leader-modal');
 const itemModal = document.getElementById('item-modal');
 const pokedexCloseButton = document.querySelector('#pokedex-modal .close-button');
+const prevPokemonButton = document.getElementById('prev-pokemon');
+const nextPokemonButton = document.getElementById('next-pokemon');
 const gymLeaderCloseButton = document.querySelector('#gym-leader-modal .close-button');
 const itemModalCloseButton = document.querySelector('#item-modal .close-button');
 
@@ -49,6 +51,7 @@ let isMuted = false;
 let almostCorrectPokemon = null;
 let score = 0;
 let isWaitingForPokemonToEvolve = false;
+let currentPokemonId = null;
 
 async function handleRareCandyEvolution(pokemonName) {
     isWaitingForPokemonToEvolve = false; // Reset state immediately
@@ -617,6 +620,47 @@ window.addEventListener('click', (event) => {
     }
 });
 
+prevPokemonButton.addEventListener('click', () => navigatePokemon(-1));
+nextPokemonButton.addEventListener('click', () => navigatePokemon(1));
+
+window.addEventListener('keydown', (event) => {
+    if (modal.style.display === 'block') {
+        if (event.key === 'ArrowLeft') {
+            navigatePokemon(-1);
+        } else if (event.key === 'ArrowRight') {
+            navigatePokemon(1);
+        }
+    }
+});
+
+function navigatePokemon(direction) {
+    if (currentPokemonId === null) return;
+
+    const revealedPokemonIds = pokemonData
+        .filter(p => {
+            const tile = document.querySelector(`[data-pokemon-id='${p.id}']`);
+            return tile && tile.classList.contains('revealed');
+        })
+        .map(p => p.id)
+        .sort((a, b) => a - b);
+
+    const currentIndex = revealedPokemonIds.indexOf(currentPokemonId);
+    let nextIndex = currentIndex + direction;
+
+    if (nextIndex < 0) {
+        nextIndex = revealedPokemonIds.length - 1;
+    } else if (nextIndex >= revealedPokemonIds.length) {
+        nextIndex = 0;
+    }
+
+    const nextPokemonId = revealedPokemonIds[nextIndex];
+    const nextPokemon = pokemonData.find(p => p.id === nextPokemonId);
+
+    if (nextPokemon) {
+        displayPokemonModal(nextPokemon);
+    }
+}
+
 function displayGymLeaderModal(leader) {
     document.getElementById('gym-leader-name').textContent = leader.name;
     document.getElementById('gym-leader-badge').textContent = leader.badge;
@@ -665,6 +709,8 @@ async function displayPokemonModal(pokemon) {
     document.getElementById('pokemon-weight').textContent = `${pokemon.weight / 10} kg`;
     document.getElementById('pokemon-abilities').textContent = pokemon.abilities.map(a => a.ability.name).join(', ');
     document.getElementById('pokemon-description').textContent = description;
+    document.getElementById('pokemon-number').textContent = `#${pokemon.id.toString().padStart(3, '0')}`;
+    currentPokemonId = pokemon.id;
 
     modal.style.display = 'block';
 }
