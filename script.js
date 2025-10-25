@@ -9,6 +9,7 @@ const modal = document.getElementById('pokedex-modal');
 const gymLeaderModal = document.getElementById('gym-leader-modal');
 const itemModal = document.getElementById('item-modal');
 const achievementsModal = document.getElementById('achievements-modal');
+const oakModal = document.getElementById('oak-modal');
 const pokedexCloseButton = document.querySelector('#pokedex-modal .close-button');
 const prevPokemonButton = document.getElementById('prev-pokemon');
 const nextPokemonButton = document.getElementById('next-pokemon');
@@ -16,6 +17,8 @@ const gymLeaderCloseButton = document.querySelector('#gym-leader-modal .close-bu
 const itemModalCloseButton = document.querySelector('#item-modal .close-button');
 const achievementsButton = document.getElementById('achievements-button');
 const achievementsModalCloseButton = document.querySelector('#achievements-modal .close-button');
+const oakModalCloseButton = document.getElementById('oak-modal-close-button');
+const oakModalXButton = document.querySelector('#oak-modal .close-button');
 
 let unlockedAchievements = [];
 let achievementQueue = [];
@@ -431,9 +434,9 @@ pokemonInput.addEventListener('keydown', async (event) => {
                 updateScoreDisplay();
                 checkAchievements();
                 saveGameState();
+                processCorrectGuess(newlyRevealed);
                 if (!isMuted) {
                     new Audio(`https://play.pokemonshowdown.com/audio/cries/nidoranf.mp3`).play();
-                    new Audio(`https://play.pokemonshowdown.com/audio/cries/nidoranm.mp3`).play();
                 }
             } else {
                 feedbackContainer.textContent = 'You have already revealed both Nidorans!';
@@ -494,10 +497,7 @@ pokemonInput.addEventListener('keydown', async (event) => {
                 revealPokemon(pokemon, tile);
                 feedbackContainer.textContent = 'Correct!';
                 feedbackContainer.className = 'correct';
-                score++;
-                updateScoreDisplay();
-                checkAchievements();
-                saveGameState();
+                processCorrectGuess();
                 if (!isMuted) {
                     const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${pokemon.name}.mp3`;
                     const audio = new Audio(cryUrl);
@@ -540,10 +540,7 @@ pokemonInput.addEventListener('keydown', async (event) => {
 
                         feedbackContainer.textContent = 'Correct!';
                         feedbackContainer.className = 'correct';
-                        score++;
-                        updateScoreDisplay();
-                        checkAchievements();
-                        saveGameState();
+                        processCorrectGuess();
                         if (!isMuted) {
                             const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${newPokemon.name}.mp3`;
                             const audio = new Audio(cryUrl);
@@ -622,6 +619,7 @@ resetButton.addEventListener('click', () => {
     localStorage.removeItem('gen2Unlocked');
     localStorage.removeItem('unlockedAchievements');
     localStorage.removeItem('missingNoRevealed')
+    localStorage.removeItem('oakModalShown');
     location.reload();
 });
 
@@ -664,6 +662,34 @@ window.addEventListener('click', (event) => {
     if (event.target == achievementsModal) {
         achievementsModal.style.display = 'none';
     }
+    if (event.target == oakModal) {
+        oakModal.style.display = 'none';
+    }
+});
+
+function showOakModal() {
+    oakModal.style.display = 'block';
+}
+
+function processCorrectGuess(newlyRevealedCount = 1) {
+    if (score === 0 && newlyRevealedCount > 0) {
+        if (!localStorage.getItem('oakModalShown')) {
+            showOakModal();
+            localStorage.setItem('oakModalShown', 'true');
+        }
+    }
+    score += newlyRevealedCount;
+    updateScoreDisplay();
+    checkAchievements();
+    saveGameState();
+}
+
+oakModalCloseButton.addEventListener('click', () => {
+    oakModal.style.display = 'none';
+});
+
+oakModalXButton.addEventListener('click', () => {
+    oakModal.style.display = 'none';
 });
 
 prevPokemonButton.addEventListener('click', () => navigatePokemon(-1));
