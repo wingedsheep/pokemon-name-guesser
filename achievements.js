@@ -318,9 +318,9 @@ const achievements = {
   },
 
   // No-Hint Achievements
-  "no-hints-50": {
-    name: "Psychic Intuition",
-    description: "Guess 50 Pokémon without using any hints.",
+  "no-hints-75": {
+    name: "Sixth Sense",
+    description: "Guess 75 Pokémon without using any hints.",
     pokemon: [], // Custom logic
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -330,8 +330,19 @@ const achievements = {
       </svg>`
   },
   "no-hints-100": {
-    name: "Clairvoyant",
+    name: "Psychic Intuition",
     description: "Guess 100 Pokémon without using any hints.",
+    pokemon: [], // Custom logic
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2" fill="#F85888"/>
+        <path d="M 9 12 A 3 4 0 0 1 15 12 A 3 4 0 0 1 9 12" fill="#fff"/>
+        <circle cx="12" cy="12" r="1" fill="#000"/>
+      </svg>`
+  },
+  "no-hints-125": {
+    name: "Clairvoyant",
+    description: "Guess 125 Pokémon without using any hints.",
     pokemon: [], // Custom logic
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
