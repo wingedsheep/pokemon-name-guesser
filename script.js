@@ -74,6 +74,8 @@ let score = 0;
 let hintsUsed = 0;
 let isWaitingForPokemonToEvolve = false;
 let currentPokemonId = null;
+let nextExpectedPokemonId = 1;
+let pokedexOrderFailed = false;
 
 async function handleRareCandyEvolution(pokemonName) {
     isWaitingForPokemonToEvolve = false; // Reset state immediately
@@ -266,6 +268,8 @@ async function loadGameState() {
     guessedWithoutHints = JSON.parse(localStorage.getItem('guessedWithoutHints')) || [];
     score = revealedPokemonIds.length;
     hintsUsed = parseInt(localStorage.getItem('hintsUsed')) || 0;
+    nextExpectedPokemonId = parseInt(localStorage.getItem('nextExpectedPokemonId')) || 1;
+    pokedexOrderFailed = localStorage.getItem('pokedexOrderFailed') === 'true';
     updateScoreDisplay();
     updateHintCounter();
 
@@ -398,9 +402,34 @@ function saveGameState() {
     localStorage.setItem('gen2Unlocked', gen2Unlocked);
     localStorage.setItem('unlockedAchievements', JSON.stringify(unlockedAchievements));
     localStorage.setItem('guessedWithoutHints', JSON.stringify(guessedWithoutHints));
+    localStorage.setItem('nextExpectedPokemonId', nextExpectedPokemonId);
+    localStorage.setItem('pokedexOrderFailed', pokedexOrderFailed);
 
     if (document.querySelector('[data-pokemon-id="0"].revealed') || localStorage.getItem('missingNoRevealed') === 'true') {
         localStorage.setItem('missingNoRevealed', 'true');
+    }
+}
+
+function checkPokedexOrder(guessedPokemon) {
+    if (pokedexOrderFailed) {
+        return;
+    }
+
+    if (guessedPokemon.id !== nextExpectedPokemonId) {
+        pokedexOrderFailed = true;
+        return;
+    }
+
+    nextExpectedPokemonId++;
+
+    while (nextExpectedPokemonId <= 151) {
+        const tile = document.querySelector(`[data-pokemon-id='${nextExpectedPokemonId}']`);
+        // This handles cases where a Pokémon might already be revealed (e.g., Nidoran♂)
+        if (tile && tile.classList.contains('revealed')) {
+            nextExpectedPokemonId++;
+        } else {
+            break;
+        }
     }
 }
 
@@ -456,6 +485,7 @@ pokemonInput.addEventListener('keydown', async (event) => {
                 feedbackContainer.textContent = 'Correct!';
                 feedbackContainer.className = 'correct';
                 score += newlyRevealed;
+                if (nidorans.some(n => n.name === 'nidoran-f')) checkPokedexOrder(nidorans.find(n => n.name === 'nidoran-f'));
                 updateScoreDisplay();
                 checkAchievements();
                 saveGameState();
@@ -531,6 +561,7 @@ pokemonInput.addEventListener('keydown', async (event) => {
                     guessedWithoutHints.push(pokemon.id);
                 }
                 hintUsed = false;
+                checkPokedexOrder(pokemon);
                 processCorrectGuess();
                 if (!isMuted) {
                     const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${pokemon.name}.mp3`;
@@ -666,6 +697,8 @@ resetButton.addEventListener('click', () => {
     localStorage.removeItem('championModalShown');
     localStorage.removeItem('hintsUsed');
     localStorage.removeItem('gameStartTime');
+    localStorage.removeItem('nextExpectedPokemonId');
+    localStorage.removeItem('pokedexOrderFailed');
     location.reload();
 });
 
@@ -1134,6 +1167,10 @@ function checkAchievements() {
             }
         } else if (id === 'gen2-unlocked') {
             if ([...revealedPokemonIds].some(pokemonId => pokemonId > 151)) {
+                isCompleted = true;
+            }
+        } else if (id === 'pokedex-order') {
+            if (!pokedexOrderFailed && nextExpectedPokemonId > 151) {
                 isCompleted = true;
             }
         } else {

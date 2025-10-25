@@ -13,6 +13,19 @@ const achievements = {
       </svg>`
   },
 
+  "pokedex-order": {
+    name: "Professor Oak's Favorite",
+    description: "Guessed all 151 original Pokémon in perfect Pokédex order. You've made him proud!",
+    pokemon: [], // Custom logic
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2" fill="#fff"/>
+        <rect x="8" y="6" width="8" height="12" fill="#F0E68C" stroke="#B8860B" stroke-width="1"/>
+        <path d="M 10 10 H 14 M 10 12 H 14 M 10 14 H 12" stroke="#000" stroke-width="1"/>
+        <path d="M 9 6 L 9 8 L 15 8 L 15 6" stroke="#B8860B" stroke-width="1" fill="#DEB887"/>
+      </svg>`
+  },
+
   // Location-based achievements
   "pallet-town": {
     name: "Pallet Town Rookie",
