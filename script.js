@@ -722,7 +722,11 @@ async function displayPokemonModal(pokemon) {
 
     pokemonImage.onerror = () => {
         pokemonImage.src = pokemon.image;
+        pokemonImage.classList.add('fallback-image');
         pokemonImage.onerror = null; // Prevent infinite loops
+    };
+    pokemonImage.onload = () => {
+        pokemonImage.classList.remove('fallback-image');
     };
     pokemonImage.src = localImagePath;
 

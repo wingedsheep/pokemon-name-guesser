@@ -249,6 +249,10 @@ h1 {
     clip-path: inset(0 32px 0 0);
 }
 
+#pokemon-image.fallback-image {
+    width: 50%;
+}
+
 #gym-leader-pokemon-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
