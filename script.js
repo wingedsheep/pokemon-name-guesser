@@ -709,6 +709,28 @@ function showOakModal() {
     oakModal.style.display = 'block';
 }
 
+function displayMissingNoHint() {
+    const hints = [
+        "An old man's lesson in Viridian can show you the way to worlds unseen. Fly south from there.",
+        "On Cinnabar's eastern shore, the very fabric of the world seems to fray. Surf along the edge to see what you find.",
+        "They say a strange creature on Cinnabar's coast can make your treasures multiply."
+    ];
+    const randomHint = hints[Math.floor(Math.random() * hints.length)];
+    feedbackContainer.textContent = randomHint;
+    feedbackContainer.className = 'hint';
+}
+
+function displayGen2Hint() {
+    const hints = [
+        "A new world awaits! Rumor has it there are more Pokémon to discover from the neighboring Johto region.",
+        "Have you heard of a 'Pikablu'? A round, blue water mouse has been spotted recently.",
+        "A sacred bird of rainbow hues is said to appear to pure-hearted trainers."
+    ];
+    const randomHint = hints[Math.floor(Math.random() * hints.length)];
+    feedbackContainer.textContent = randomHint;
+    feedbackContainer.className = 'hint';
+}
+
 function processCorrectGuess(newlyRevealedCount = 1) {
     if (score === 0 && newlyRevealedCount > 0) {
         if (!localStorage.getItem('oakModalShown')) {
@@ -720,6 +742,18 @@ function processCorrectGuess(newlyRevealedCount = 1) {
     updateScoreDisplay();
     checkAchievements();
     saveGameState();
+
+    const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')]
+        .map(tile => parseInt(tile.dataset.pokemonId))
+        .filter(id => id >= 1 && id <= 151);
+
+    if (revealedPokemonIds.length === 151) {
+        if (Math.random() < 0.5) {
+            displayMissingNoHint();
+        } else {
+            displayGen2Hint();
+        }
+    }
 }
 
 oakModalCloseButton.addEventListener('click', () => {
