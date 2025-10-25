@@ -517,9 +517,9 @@ const achievements = {
   },
 
   // Speedrunner Achievements
-  "speedrunner-50": {
+  "speedrunner-600": {
     name: "Warp Speed",
-    description: "Guess 50 Pokémon in under 5 minutes.",
+    description: "Guess all 151 Pokémon in under 10 minutes.",
     pokemon: [], // Custom logic
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -528,9 +528,9 @@ const achievements = {
         <path d="M 10 4 L 14 4" stroke="#000" stroke-width="1"/>
       </svg>`
   },
-  "speedrunner-100": {
+  "speedrunner-1200": {
     name: "Lightning Fast",
-    description: "Guess 100 Pokémon in under 10 minutes.",
+    description: "Guess all 151 Pokémon in under 20 minutes.",
     pokemon: [], // Custom logic
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -540,9 +540,9 @@ const achievements = {
         <path d="M 8 8 L 6 10 M 16 8 L 18 10" stroke="#000" stroke-width="1"/>
       </svg>`
   },
-  "speedrunner-151": {
+  "speedrunner-1800": {
     name: "Speedrunner",
-    description: "Guess all 151 Pokémon in under 15 minutes.",
+    description: "Guess all 151 Pokémon in under 30 minutes.",
     pokemon: [], // Custom logic
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">

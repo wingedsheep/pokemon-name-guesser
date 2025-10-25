@@ -1267,12 +1267,11 @@ function checkAchievements() {
             }
         } else if (id.startsWith('speedrunner-')) {
             const parts = id.split('-');
-            const count = parseInt(parts[1]);
-            const timeLimits = { 50: 5 * 60 * 1000, 100: 10 * 60 * 1000, 151: 15 * 60 * 1000 };
-            const timeLimit = timeLimits[count];
+            const timeLimitSeconds = parseInt(parts[1]);
+            const timeLimitMilliseconds = timeLimitSeconds * 1000;
             const startTime = parseInt(localStorage.getItem('gameStartTime'));
             const elapsedTime = new Date().getTime() - startTime;
-            if (revealedGen1PokemonIds.size >= count && elapsedTime <= timeLimit) {
+            if (revealedGen1PokemonIds.size >= count && elapsedTime <= timeLimitMilliseconds) {
                 isCompleted = true;
             }
         } else if (id.startsWith('hints-')) {
