@@ -5,6 +5,7 @@ const muteButton = document.getElementById('mute-button');
 const hintButton = document.getElementById('hint-button');
 const resetButton = document.getElementById('reset-button');
 const scoreCounter = document.getElementById('score-counter');
+const hintCounter = document.getElementById('hint-counter');
 const modal = document.getElementById('pokedex-modal');
 const gymLeaderModal = document.getElementById('gym-leader-modal');
 const itemModal = document.getElementById('item-modal');
@@ -67,6 +68,7 @@ let pokemonData = [];
 let isMuted = false;
 let almostCorrectPokemon = null;
 let score = 0;
+let hintsUsed = 0;
 let isWaitingForPokemonToEvolve = false;
 let currentPokemonId = null;
 
@@ -260,7 +262,13 @@ async function loadGameState() {
     unlockedAchievements = JSON.parse(localStorage.getItem('unlockedAchievements')) || [];
     guessedWithoutHints = JSON.parse(localStorage.getItem('guessedWithoutHints')) || [];
     score = revealedPokemonIds.length;
+    hintsUsed = parseInt(localStorage.getItem('hintsUsed')) || 0;
     updateScoreDisplay();
+    updateHintCounter();
+
+    if (!localStorage.getItem('gameStartTime')) {
+        localStorage.setItem('gameStartTime', new Date().getTime());
+    }
 
     for (const id of revealedPokemonIds) {
         let pokemon = pokemonData.find(p => p.id === id);
@@ -370,12 +378,17 @@ function updateScoreDisplay() {
     scoreCounter.textContent = `Score: ${score} / ${total}`;
 }
 
+function updateHintCounter() {
+    hintCounter.textContent = `Hints: ${hintsUsed}`;
+}
+
 function saveGameState() {
     const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')]
         .map(tile => parseInt(tile.dataset.pokemonId))
         .filter(id => id !== 0);
     localStorage.setItem('revealedPokemon', JSON.stringify(revealedPokemonIds));
     localStorage.setItem('pokemonGameScore', score);
+    localStorage.setItem('hintsUsed', hintsUsed);
 
     const shinyPokemonIds = pokemonData.filter(p => p.isShiny).map(p => p.id);
     localStorage.setItem('shinyPokemon', JSON.stringify(shinyPokemonIds));
@@ -608,6 +621,10 @@ hintButton.addEventListener('click', () => {
         return;
     }
 
+    hintsUsed++;
+    updateHintCounter();
+    localStorage.setItem('hintsUsed', hintsUsed);
+
     const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')].map(tile => parseInt(tile.dataset.pokemonId));
     const unrevealedPokemon = pokemonData.filter(p => p.id <= 151 && !revealedPokemonIds.includes(p.id));
 
@@ -639,6 +656,8 @@ resetButton.addEventListener('click', () => {
     localStorage.removeItem('missingNoRevealed')
     localStorage.removeItem('guessedWithoutHints');
     localStorage.removeItem('oakModalShown');
+    localStorage.removeItem('hintsUsed');
+    localStorage.removeItem('gameStartTime');
     location.reload();
 });
 
@@ -1017,6 +1036,21 @@ function checkAchievements() {
         if (id.startsWith('no-hints-')) {
             const count = parseInt(id.split('-')[2]);
             if (guessedWithoutHints.length >= count) {
+                isCompleted = true;
+            }
+        } else if (id.startsWith('speedrunner-')) {
+            const parts = id.split('-');
+            const count = parseInt(parts[1]);
+            const timeLimits = { 50: 5 * 60 * 1000, 100: 10 * 60 * 1000, 151: 15 * 60 * 1000 };
+            const timeLimit = timeLimits[count];
+            const startTime = parseInt(localStorage.getItem('gameStartTime'));
+            const elapsedTime = new Date().getTime() - startTime;
+            if (revealedPokemonIds.size >= count && elapsedTime <= timeLimit) {
+                isCompleted = true;
+            }
+        } else if (id.startsWith('hints-')) {
+            const count = parseInt(id.split('-')[1]);
+            if (revealedPokemonIds.size >= 151 && hintsUsed <= count) {
                 isCompleted = true;
             }
         } else if (id === 'gen2-unlocked') {
