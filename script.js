@@ -576,18 +576,23 @@ pokemonInput.addEventListener('keydown', async (event) => {
 
 hintButton.addEventListener('click', () => {
     const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')].map(tile => parseInt(tile.dataset.pokemonId));
-    const unrevealedPokemon = pokemonData.filter(p => !revealedPokemonIds.includes(p.id));
+    const unrevealedPokemon = pokemonData.filter(p => p.id <= 151 && !revealedPokemonIds.includes(p.id));
 
     if (unrevealedPokemon.length > 0) {
         const randomPokemon = unrevealedPokemon[Math.floor(Math.random() * unrevealedPokemon.length)];
-        const hint = `${randomPokemon.name.charAt(0)}...${randomPokemon.name.charAt(randomPokemon.name.length - 1)}`;
-        feedback.textContent = `Hint: There is a Pokémon that starts with '${randomPokemon.name.charAt(0)}' and ends with '${randomPokemon.name.charAt(randomPokemon.name.length - 1)}'.`;
+        const hints = pokemonHints[randomPokemon.id];
+        if (hints && hints.length > 0) {
+            const randomHint = hints[Math.floor(Math.random() * hints.length)];
+            feedback.textContent = `Hint: ${randomHint}`;
+        } else {
+            feedback.textContent = `Hint: There is a Pokémon that starts with '${randomPokemon.name.charAt(0)}' and ends with '${randomPokemon.name.charAt(randomPokemon.name.length - 1)}'.`;
+        }
         feedback.className = '';
     } else {
         feedback.textContent = 'All Pokémon have been guessed!';
         feedback.className = '';
     }
-    setTimeout(() => feedback.textContent = '', 3000);
+    setTimeout(() => feedback.textContent = '', 4000);
 });
 
 resetButton.addEventListener('click', () => {
