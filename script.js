@@ -1184,6 +1184,10 @@ function checkAchievements() {
         .map(tile => parseInt(tile.dataset.pokemonId))
     );
 
+    const revealedGen1PokemonIds = new Set(
+        [...revealedPokemonIds].filter(id => id >= 1 && id <= 151)
+    );
+
     let newAchievementsUnlocked = false;
     for (const id in achievements) {
         if (unlockedAchievements.includes(id)) {
@@ -1195,7 +1199,8 @@ function checkAchievements() {
 
         if (id.startsWith('no-hints-')) {
             const count = parseInt(id.split('-')[2]);
-            if (guessedWithoutHints.length >= count) {
+            const guessedWithoutHintsGen1 = guessedWithoutHints.filter(id => id >= 1 && id <= 151);
+            if (guessedWithoutHintsGen1.length >= count) {
                 isCompleted = true;
             }
         } else if (id.startsWith('speedrunner-')) {
@@ -1205,12 +1210,12 @@ function checkAchievements() {
             const timeLimit = timeLimits[count];
             const startTime = parseInt(localStorage.getItem('gameStartTime'));
             const elapsedTime = new Date().getTime() - startTime;
-            if (revealedPokemonIds.size >= count && elapsedTime <= timeLimit) {
+            if (revealedGen1PokemonIds.size >= count && elapsedTime <= timeLimit) {
                 isCompleted = true;
             }
         } else if (id.startsWith('hints-')) {
             const count = parseInt(id.split('-')[1]);
-            if (revealedPokemonIds.size >= 151 && hintsUsed <= count) {
+            if (revealedGen1PokemonIds.size >= 151 && hintsUsed <= count) {
                 isCompleted = true;
             }
         } else if (id === 'gen2-unlocked') {
