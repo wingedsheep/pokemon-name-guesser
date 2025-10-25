@@ -643,8 +643,11 @@ hintButton.addEventListener('click', () => {
         feedbackContainer.className = 'hint';
         hintUsed = true;
     } else {
-        feedbackContainer.textContent = 'All Pokémon have been guessed!';
-        feedbackContainer.className = 'incorrect';
+        if (Math.random() < 0.5) {
+            displayMissingNoHint();
+        } else {
+            displayGen2Hint();
+        }
     }
 });
 
