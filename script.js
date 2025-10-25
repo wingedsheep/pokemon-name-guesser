@@ -18,6 +18,8 @@ const achievementsButton = document.getElementById('achievements-button');
 const achievementsModalCloseButton = document.querySelector('#achievements-modal .close-button');
 
 let unlockedAchievements = [];
+let achievementQueue = [];
+let isAchievementBannerVisible = false;
 
 const typeColors = {
     normal: '#a8a878',
@@ -483,19 +485,24 @@ pokemonInput.addEventListener('keydown', async (event) => {
         const pokemon = pokemonData.find(p => normalizeName(p.name) === normalizedGuessedName);
 
         if (pokemon) {
-            almostCorrectPokemon = null;
             const tile = document.querySelector(`[data-pokemon-id='${pokemon.id}']`);
-            revealPokemon(pokemon, tile);
-            feedbackContainer.textContent = 'Correct!';
-            feedbackContainer.className = 'correct';
-            score++;
-            updateScoreDisplay();
-            checkAchievements();
-            saveGameState();
-            if (!isMuted) {
-                const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${pokemon.name}.mp3`;
-                const audio = new Audio(cryUrl);
-                audio.play();
+            if (tile.classList.contains('revealed')) {
+                feedback.textContent = 'You have already discovered this Pokémon!';
+                feedback.className = 'incorrect';
+            } else {
+                almostCorrectPokemon = null;
+                revealPokemon(pokemon, tile);
+                feedback.textContent = 'Correct!';
+                feedback.className = 'correct';
+                score++;
+                updateScoreDisplay();
+                checkAchievements();
+                saveGameState();
+                if (!isMuted) {
+                    const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${pokemon.name}.mp3`;
+                    const audio = new Audio(cryUrl);
+                    audio.play();
+                }
             }
         } else {
             let foundGen2Pokemon = false;
@@ -949,6 +956,7 @@ function checkAchievements() {
         .map(tile => parseInt(tile.dataset.pokemonId))
     );
 
+    let newAchievementsUnlocked = false;
     for (const id in achievements) {
         if (!unlockedAchievements.includes(id)) {
             const achievement = achievements[id];
@@ -957,13 +965,26 @@ function checkAchievements() {
 
             if (isCompleted) {
                 unlockedAchievements.push(id);
-                showAchievementBanner(achievement);
+                achievementQueue.push(achievement);
+                newAchievementsUnlocked = true;
             }
         }
     }
+    if (newAchievementsUnlocked) {
+        processAchievementQueue();
+    }
+}
+
+function processAchievementQueue() {
+    if (isAchievementBannerVisible || achievementQueue.length === 0) {
+        return;
+    }
+    const achievement = achievementQueue.shift();
+    showAchievementBanner(achievement);
 }
 
 function showAchievementBanner(achievement) {
+    isAchievementBannerVisible = true;
     let banner = document.getElementById('achievement-banner');
     if (!banner) {
         banner = document.createElement('div');
@@ -979,5 +1000,7 @@ function showAchievementBanner(achievement) {
     banner.classList.add('show');
     setTimeout(() => {
         banner.classList.remove('show');
+        isAchievementBannerVisible = false;
+        processAchievementQueue();
     }, 4000);
 }
