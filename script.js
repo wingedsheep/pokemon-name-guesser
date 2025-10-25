@@ -968,7 +968,11 @@ setInterval(transformDitto, 30000);
 
 function renderAchievements() {
     const achievementsGrid = document.getElementById('achievements-grid');
+    const achievementsCounter = document.getElementById('achievements-counter');
     achievementsGrid.innerHTML = '';
+
+    const totalAchievements = Object.keys(achievements).length;
+    achievementsCounter.textContent = `Unlocked: ${unlockedAchievements.length} / ${totalAchievements}`;
 
     for (const id in achievements) {
         const achievement = achievements[id];
