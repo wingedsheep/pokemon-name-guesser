@@ -172,6 +172,7 @@ async function handleRareCandyEvolution(pokemonName) {
             score++;
             scoreCounter.textContent = `Score: ${score} / 151`;
             localStorage.setItem('rareCandyUsed', 'true');
+            checkAchievements();
             saveGameState();
             feedbackContainer.textContent = `Congratulations! Your ${basePokemon.name} evolved into ${evolutionDetails.name}!`;
             feedbackContainer.className = 'correct';
@@ -428,6 +429,7 @@ pokemonInput.addEventListener('keydown', async (event) => {
                 feedbackContainer.className = 'correct';
                 score += newlyRevealed;
                 updateScoreDisplay();
+                checkAchievements();
                 saveGameState();
                 if (!isMuted) {
                     new Audio(`https://play.pokemonshowdown.com/audio/cries/nidoranf.mp3`).play();
@@ -475,6 +477,7 @@ pokemonInput.addEventListener('keydown', async (event) => {
             tile.style.background = `linear-gradient(to right, ${typeColors.flying}, ${typeColors.normal})`;
 
             displayPokemonModal(missingNo);
+            checkAchievements();
             pokemonInput.value = '';
             return;
         }
