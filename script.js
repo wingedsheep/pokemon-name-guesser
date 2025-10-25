@@ -3,6 +3,7 @@ const pokemonInput = document.getElementById('pokemon-input');
 const feedback = document.getElementById('feedback');
 const muteButton = document.getElementById('mute-button');
 const hintButton = document.getElementById('hint-button');
+const hintDisplay = document.getElementById('hint-display');
 const resetButton = document.getElementById('reset-button');
 const scoreCounter = document.getElementById('score-counter');
 const modal = document.getElementById('pokedex-modal');
@@ -373,6 +374,12 @@ function saveGameState() {
     }
 }
 
+pokemonInput.addEventListener('input', () => {
+    if (hintDisplay.textContent) {
+        hintDisplay.textContent = '';
+    }
+});
+
 pokemonInput.addEventListener('keydown', async (event) => {
     if (event.key === 'Enter') {
         const guessedName = pokemonInput.value.toLowerCase();
@@ -575,6 +582,11 @@ pokemonInput.addEventListener('keydown', async (event) => {
 });
 
 hintButton.addEventListener('click', () => {
+    if (hintDisplay.textContent) {
+        hintDisplay.textContent = '';
+        return;
+    }
+
     const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')].map(tile => parseInt(tile.dataset.pokemonId));
     const unrevealedPokemon = pokemonData.filter(p => p.id <= 151 && !revealedPokemonIds.includes(p.id));
 
@@ -583,16 +595,13 @@ hintButton.addEventListener('click', () => {
         const hints = pokemonHints[randomPokemon.id];
         if (hints && hints.length > 0) {
             const randomHint = hints[Math.floor(Math.random() * hints.length)];
-            feedback.textContent = `Hint: ${randomHint}`;
+            hintDisplay.textContent = `${randomHint}`;
         } else {
-            feedback.textContent = `Hint: There is a Pokémon that starts with '${randomPokemon.name.charAt(0)}' and ends with '${randomPokemon.name.charAt(randomPokemon.name.length - 1)}'.`;
+            hintDisplay.textContent = `Starts with '${randomPokemon.name.charAt(0)}', ends with '${randomPokemon.name.charAt(randomPokemon.name.length - 1)}'.`;
         }
-        feedback.className = '';
     } else {
-        feedback.textContent = 'All Pokémon have been guessed!';
-        feedback.className = '';
+        hintDisplay.textContent = 'All Pokémon have been guessed!';
     }
-    setTimeout(() => feedback.textContent = '', 4000);
 });
 
 resetButton.addEventListener('click', () => {

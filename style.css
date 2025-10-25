@@ -16,6 +16,7 @@ h1 {
     align-items: center;
     margin-bottom: 20px;
     flex-wrap: wrap;
+    position: relative;
 }
 
 #mute-button, #hint-button, #reset-button, #achievements-button {
@@ -123,6 +124,21 @@ h1 {
 
 .incorrect {
     color: red;
+}
+
+#hint-display {
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #3e3e3e;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    z-index: 10;
+    text-align: center;
+    width: max-content;
+    max-width: 90vw;
 }
 
 @keyframes shake {
