@@ -315,5 +315,180 @@ const achievements = {
         <path d="M 10 8 L 10 12 H 14 V 10" stroke="#FF00FF" stroke-width="2" fill="none"/>
         <rect x="10" y="14" width="2" height="2" fill="#00FFFF"/>
       </svg>`
+  },
+
+  // No-Hint Achievements
+  "no-hints-50": {
+    name: "Psychic Intuition",
+    description: "Guess 50 Pokémon without using any hints.",
+    pokemon: [], // Custom logic
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2" fill="#F85888"/>
+        <path d="M 9 12 A 3 4 0 0 1 15 12 A 3 4 0 0 1 9 12" fill="#fff"/>
+        <circle cx="12" cy="12" r="1" fill="#000"/>
+      </svg>`
+  },
+  "no-hints-100": {
+    name: "Clairvoyant",
+    description: "Guess 100 Pokémon without using any hints.",
+    pokemon: [], // Custom logic
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2" fill="#F85888"/>
+        <path d="M 9 12 A 3 4 0 0 1 15 12 A 3 4 0 0 1 9 12" fill="#fff"/>
+        <circle cx="12" cy="12" r="1" fill="#000"/>
+        <path d="M 12 6 L 12 3 M 12 18 L 12 21 M 6 12 L 3 12 M 18 12 L 21 12" stroke="#fff" stroke-width="1"/>
+      </svg>`
+  },
+  "no-hints-151": {
+    name: "Mind Reader",
+    description: "Guess all 151 original Pokémon without using any hints.",
+    pokemon: [], // Custom logic
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#FFD700" stroke-width="2" fill="#F85888"/>
+        <path d="M 9 12 A 3 4 0 0 1 15 12 A 3 4 0 0 1 9 12" fill="#fff"/>
+        <circle cx="12" cy="12" r="1" fill="#000"/>
+        <path d="M 12 6 L 12 2 M 12 18 L 12 22 M 6 12 L 2 12 M 18 12 L 22 12" stroke="#FFD700" stroke-width="2"/>
+        <path d="M 9 9 L 6 6 M 15 9 L 18 6 M 9 15 L 6 18 M 15 15 L 18 18" stroke="#FFD700" stroke-width="2"/>
+      </svg>`
+  },
+
+  // Gen 2 Achievements
+  "gen2-unlocked": {
+    name: "A New World",
+    description: "Guess your first Pokémon from the Johto region.",
+    pokemon: [], // Custom logic
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2" fill="#C0C0C0"/>
+        <path d="M 10 8 L 14 8 L 14 12 L 12 12 L 12 14 L 14 14 L 14 16 L 10 16 L 10 12 L 12 12 L 12 10 L 10 10 Z" fill="#fff" stroke="#000" stroke-width="1"/>
+      </svg>`
+  },
+  "johto-champion": {
+    name: "Johto Champion",
+    description: "Guess all 100 Pokémon from the Johto region.",
+    pokemon: Array.from({ length: 100 }, (_, i) => i + 152),
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#FFD700" stroke-width="2" fill="#C0C0C0"/>
+        <path d="M 10 8 L 14 8 L 14 12 L 12 12 L 12 14 L 14 14 L 14 16 L 10 16 L 10 12 L 12 12 L 12 10 L 10 10 Z" fill="#FFD700" stroke="#DAA520" stroke-width="1"/>
+        <path d="M 12 6 V 8" stroke="#FFD700" stroke-width="2" fill="none"/>
+        <path d="M 10 4 L 14 4" stroke="#FFD700" stroke-width="2" fill="none"/>
+      </svg>`
+  },
+
+  // Type Masteries
+  "normal-master": {
+    name: "Normal Norman",
+    description: "Guess all Normal-type Pokémon from Gen 1.",
+    pokemon: [16, 17, 18, 19, 20, 21, 22, 39, 40, 52, 53, 83, 84, 85, 108, 113, 115, 128, 132, 133, 137, 143],
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2" fill="#a8a878"/>
+        <rect x="9" y="9" width="6" height="6" fill="#fff" stroke="#000" stroke-width="1"/>
+      </svg>`
+  },
+  "poison-master": {
+    name: "Toxic Tamer",
+    description: "Guess all Poison-type Pokémon from Gen 1.",
+    pokemon: [23, 24, 29, 30, 32, 33, 88, 89, 109, 110],
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2" fill="#a040a0"/>
+        <path d="M 12 8 C 10 8 10 10 12 10 C 14 10 14 8 12 8 Z M 10 12 C 8 12 8 14 10 14 C 12 14 12 12 10 12 Z M 14 12 C 12 12 12 14 14 14 C 16 14 16 12 14 12 Z" fill="#fff"/>
+      </svg>`
+  },
+  "water-master": {
+    name: "Aqua Admiral",
+    description: "Guess all Water-type Pokémon from Gen 1.",
+    pokemon: [7, 8, 9, 54, 55, 60, 61, 62, 86, 90, 98, 99, 116, 117, 118, 119, 120, 121, 129, 134],
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2" fill="#6890f0"/>
+        <path d="M 12 8 C 10 10 12 12 12 12 C 12 12 14 10 12 8 Z M 12 12 C 10 14 12 16 12 16 C 12 16 14 14 12 12 Z" fill="#fff"/>
+      </svg>`
+  },
+  "grass-master": {
+    name: "Garden Guardian",
+    description: "Guess all Grass-type Pokémon from Gen 1.",
+    pokemon: [1, 2, 3, 43, 44, 45, 69, 70, 71, 102, 103, 114],
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2" fill="#78c850"/>
+        <path d="M 12 16 V 10 L 14 12 L 12 10 L 10 12 Z" fill="#fff"/>
+      </svg>`
+  },
+  "bug-master": {
+    name: "Bug Baron",
+    description: "Guess all Bug-type Pokémon from Gen 1.",
+    pokemon: [10, 11, 12, 13, 14, 15, 46, 47, 48, 49, 123, 127],
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2" fill="#a8b820"/>
+        <circle cx="10" cy="10" r="1" fill="#fff"/><circle cx="14" cy="10" r="1" fill="#fff"/>
+        <path d="M 9 14 L 15 14" stroke="#fff" stroke-width="1"/>
+      </svg>`
+  },
+  "fire-master": {
+    name: "Fiery Commander",
+    description: "Guess all Fire-type Pokémon from Gen 1.",
+    pokemon: [4, 5, 6, 37, 38, 58, 59, 77, 78, 126, 136, 146],
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2" fill="#f08030"/>
+        <path d="M 12 10 C 10 12 12 14 12 16 C 14 14 12 12 12 10 Z" fill="#fff"/>
+      </svg>`
+  },
+  "psychic-master": {
+    name: "Psychic Prodigy",
+    description: "Guess all Psychic-type Pokémon from Gen 1.",
+    pokemon: [63, 64, 65, 79, 80, 96, 97, 122, 124, 150, 151],
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2" fill="#f85888"/>
+        <path d="M 10 10 C 12 8 14 10 12 12 C 14 14 12 16 10 14" stroke="#fff" stroke-width="2" fill="none"/>
+      </svg>`
+  },
+  "ground-master": {
+    name: "Groundbreaker",
+    description: "Guess all Ground-type Pokémon from Gen 1.",
+    pokemon: [27, 28, 50, 51, 104, 105, 111, 112],
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2" fill="#e0c068"/>
+        <path d="M 8 14 L 16 14 L 16 16 L 8 16 Z" fill="#fff"/>
+      </svg>`
+  },
+  "rock-master": {
+    name: "Rock Solid",
+    description: "Guess all Rock-type Pokémon from Gen 1.",
+    pokemon: [74, 75, 76, 95, 138, 139, 140, 141, 142],
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2" fill="#b8a038"/>
+        <path d="M 10 10 L 14 10 L 14 14 L 10 14 Z" fill="#fff"/>
+      </svg>`
+  },
+  "electric-master": {
+    name: "Voltaic Virtuoso",
+    description: "Guess all Electric-type Pokémon from Gen 1.",
+    pokemon: [25, 26, 81, 82, 100, 101, 125, 135, 145],
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2" fill="#f8d030"/>
+        <path d="M 12 8 L 10 12 L 14 12 L 12 16" stroke="#fff" stroke-width="2" fill="none"/>
+      </svg>`
+  },
+  "fighting-master": {
+    name: "Fighting Spirit",
+    description: "Guess all Fighting-type Pokémon from Gen 1.",
+    pokemon: [56, 57, 66, 67, 68, 106, 107],
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2" fill="#c03028"/>
+        <path d="M 9 10 L 11 10 L 11 14 L 9 14 Z M 13 10 L 15 10 L 15 14 L 13 14 Z" fill="#fff"/>
+      </svg>`
   }
 };

@@ -21,8 +21,15 @@ const oakModalCloseButton = document.getElementById('oak-modal-close-button');
 const oakModalXButton = document.querySelector('#oak-modal .close-button');
 
 let unlockedAchievements = [];
+let guessedWithoutHints = [];
 let achievementQueue = [];
 let isAchievementBannerVisible = false;
+let hintUsed = false;
+
+window.achievementQueue = achievementQueue;
+Object.defineProperty(window, 'isAchievementBannerVisible', {
+  get: () => isAchievementBannerVisible,
+});
 
 const typeColors = {
     normal: '#a8a878',
@@ -251,6 +258,7 @@ async function loadGameState() {
     gen2Unlocked = localStorage.getItem('gen2Unlocked') === 'true';
     const revealedPokemonIds = JSON.parse(localStorage.getItem('revealedPokemon')) || [];
     unlockedAchievements = JSON.parse(localStorage.getItem('unlockedAchievements')) || [];
+    guessedWithoutHints = JSON.parse(localStorage.getItem('guessedWithoutHints')) || [];
     score = revealedPokemonIds.length;
     updateScoreDisplay();
 
@@ -373,6 +381,7 @@ function saveGameState() {
     localStorage.setItem('shinyPokemon', JSON.stringify(shinyPokemonIds));
     localStorage.setItem('gen2Unlocked', gen2Unlocked);
     localStorage.setItem('unlockedAchievements', JSON.stringify(unlockedAchievements));
+    localStorage.setItem('guessedWithoutHints', JSON.stringify(guessedWithoutHints));
 
     if (document.querySelector('[data-pokemon-id="0"].revealed')) {
         localStorage.setItem('missingNoRevealed', 'true');
@@ -501,6 +510,10 @@ pokemonInput.addEventListener('keydown', async (event) => {
                 revealPokemon(pokemon, tile);
                 feedbackContainer.textContent = 'Correct!';
                 feedbackContainer.className = 'correct';
+                if (!hintUsed) {
+                    guessedWithoutHints.push(pokemon.id);
+                }
+                hintUsed = false;
                 processCorrectGuess();
                 if (!isMuted) {
                     const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${pokemon.name}.mp3`;
@@ -608,6 +621,7 @@ hintButton.addEventListener('click', () => {
             feedbackContainer.textContent = `Starts with '${randomPokemon.name.charAt(0)}', ends with '${randomPokemon.name.charAt(randomPokemon.name.length - 1)}'.`;
         }
         feedbackContainer.className = 'hint';
+        hintUsed = true;
     } else {
         feedbackContainer.textContent = 'All Pokémon have been guessed!';
         feedbackContainer.className = 'incorrect';
@@ -623,6 +637,7 @@ resetButton.addEventListener('click', () => {
     localStorage.removeItem('gen2Unlocked');
     localStorage.removeItem('unlockedAchievements');
     localStorage.removeItem('missingNoRevealed')
+    localStorage.removeItem('guessedWithoutHints');
     localStorage.removeItem('oakModalShown');
     location.reload();
 });
@@ -958,6 +973,7 @@ function renderAchievements() {
         const achievement = achievements[id];
         const badge = document.createElement('div');
         badge.classList.add('achievement-badge');
+        badge.dataset.achievementId = id;
         const isUnlocked = unlockedAchievements.includes(id);
 
         if (!isUnlocked) {
@@ -986,18 +1002,36 @@ function checkAchievements() {
 
     let newAchievementsUnlocked = false;
     for (const id in achievements) {
-        if (!unlockedAchievements.includes(id)) {
-            const achievement = achievements[id];
-            const requiredPokemon = new Set(achievement.pokemon);
-            const isCompleted = [...requiredPokemon].every(pokemonId => revealedPokemonIds.has(pokemonId));
+        if (unlockedAchievements.includes(id)) {
+            continue;
+        }
 
-            if (isCompleted) {
-                unlockedAchievements.push(id);
-                achievementQueue.push(achievement);
-                newAchievementsUnlocked = true;
+        const achievement = achievements[id];
+        let isCompleted = false;
+
+        if (id.startsWith('no-hints-')) {
+            const count = parseInt(id.split('-')[2]);
+            if (guessedWithoutHints.length >= count) {
+                isCompleted = true;
+            }
+        } else if (id === 'gen2-unlocked') {
+            if ([...revealedPokemonIds].some(pokemonId => pokemonId > 151)) {
+                isCompleted = true;
+            }
+        } else {
+            const requiredPokemon = new Set(achievement.pokemon);
+            if (requiredPokemon.size > 0) {
+                isCompleted = [...requiredPokemon].every(pokemonId => revealedPokemonIds.has(pokemonId));
             }
         }
+
+        if (isCompleted) {
+            unlockedAchievements.push(id);
+            achievementQueue.push(achievement);
+            newAchievementsUnlocked = true;
+        }
     }
+
     if (newAchievementsUnlocked) {
         processAchievementQueue();
     }
