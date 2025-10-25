@@ -261,11 +261,17 @@ h1 {
     font-size: 18px;
 }
 
-#pokemon-image, #gym-leader-image {
+#pokemon-image {
+    image-rendering: pixelated;
+    display: block;
+    width: 100%;
+    clip-path: inset(0 32px 0 0);
+}
+
+#gym-leader-image {
     image-rendering: pixelated;
     display: block;
     width: 50%;
-    clip-path: inset(0 32px 0 0);
 }
 
 #pokemon-image.fallback-image {
