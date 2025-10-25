@@ -510,6 +510,7 @@ pokemonInput.addEventListener('keydown', async (event) => {
 
             displayPokemonModal(missingNo);
             checkAchievements();
+            saveGameState();
             pokemonInput.value = '';
             return;
         }
