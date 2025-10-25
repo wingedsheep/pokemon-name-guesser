@@ -451,6 +451,10 @@ pokemonInput.addEventListener('keydown', async (event) => {
             document.body.classList.add('glitch');
             setTimeout(() => document.body.classList.remove('glitch'), 1500);
 
+            if (!isMuted) {
+                new Audio('sounds/glitch.mp3').play();
+            }
+
             const missingNo = {
                 name: 'MissingNo.',
                 id: 0,
