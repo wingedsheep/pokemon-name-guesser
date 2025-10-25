@@ -17,7 +17,7 @@ h1 {
     margin-bottom: 20px;
 }
 
-#mute-button, #hint-button, #reset-button {
+#mute-button, #hint-button, #reset-button, #achievements-button {
     background-color: #3e3e3e;
     color: #f0f0f0;
     border: 2px outset #555;
@@ -295,7 +295,99 @@ h1 {
         font-size: 18px;
     }
 
-    #pokemon-input, #mute-button, #hint-button, #reset-button, #score-counter {
+    #pokemon-input, #mute-button, #hint-button, #reset-button, #score-counter, #achievements-button {
         font-size: 16px;
     }
+}
+
+/* Achievement Notification Banner */
+#achievement-banner {
+    position: fixed;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 1000;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    transition: top 0.5s ease-in-out;
+}
+
+#achievement-banner.show {
+    top: 20px;
+}
+
+#achievement-banner svg {
+    width: 30px;
+    height: 30px;
+    margin-right: 15px;
+    stroke: white;
+}
+
+/* Achievements Modal */
+#achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.achievement-badge {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: #3e3e3e;
+    border: 2px outset #555;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: help;
+}
+
+.achievement-badge svg {
+    width: 70%;
+    height: 70%;
+    stroke: #f0f0f0;
+    fill: #f0f0f0;
+}
+
+.achievement-badge.locked {
+    filter: grayscale(100%);
+    opacity: 0.5;
+}
+
+.achievement-badge .tooltip {
+    visibility: hidden;
+    width: 200px;
+    background-color: #1c1c1c;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 10px;
+    position: absolute;
+    z-index: 1;
+    bottom: 110%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.achievement-badge:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+.achievement-badge .tooltip h4 {
+    margin: 0 0 5px 0;
+}
+
+.achievement-badge .tooltip p {
+    margin: 0;
+    font-size: 14px;
 }

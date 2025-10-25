@@ -16,10 +16,19 @@
         <button id="hint-button">Hint</button>
         <button id="mute-button"></button>
         <button id="reset-button">Reset</button>
+        <button id="achievements-button">🏆</button>
         <div id="score-counter">Score: 0 / 151</div>
     </div>
     <div id="feedback"></div>
     <div id="pokemon-grid"></div>
+
+    <div id="achievements-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Achievements</h2>
+            <div id="achievements-grid"></div>
+        </div>
+    </div>
 
     <div id="item-modal" class="modal" style="display: none;">
         <div class="modal-content">
@@ -56,6 +65,7 @@
         </div>
     </div>
 
+    <script src="achievements.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

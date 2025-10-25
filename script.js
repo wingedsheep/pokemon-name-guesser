@@ -8,11 +8,16 @@ const scoreCounter = document.getElementById('score-counter');
 const modal = document.getElementById('pokedex-modal');
 const gymLeaderModal = document.getElementById('gym-leader-modal');
 const itemModal = document.getElementById('item-modal');
+const achievementsModal = document.getElementById('achievements-modal');
 const pokedexCloseButton = document.querySelector('#pokedex-modal .close-button');
 const prevPokemonButton = document.getElementById('prev-pokemon');
 const nextPokemonButton = document.getElementById('next-pokemon');
 const gymLeaderCloseButton = document.querySelector('#gym-leader-modal .close-button');
 const itemModalCloseButton = document.querySelector('#item-modal .close-button');
+const achievementsButton = document.getElementById('achievements-button');
+const achievementsModalCloseButton = document.querySelector('#achievements-modal .close-button');
+
+let unlockedAchievements = [];
 
 const typeColors = {
     normal: '#a8a878',
@@ -239,6 +244,7 @@ async function fetchPokemonData() {
 async function loadGameState() {
     gen2Unlocked = localStorage.getItem('gen2Unlocked') === 'true';
     const revealedPokemonIds = JSON.parse(localStorage.getItem('revealedPokemon')) || [];
+    unlockedAchievements = JSON.parse(localStorage.getItem('unlockedAchievements')) || [];
     score = revealedPokemonIds.length;
     updateScoreDisplay();
 
@@ -360,6 +366,7 @@ function saveGameState() {
     const shinyPokemonIds = pokemonData.filter(p => p.isShiny).map(p => p.id);
     localStorage.setItem('shinyPokemon', JSON.stringify(shinyPokemonIds));
     localStorage.setItem('gen2Unlocked', gen2Unlocked);
+    localStorage.setItem('unlockedAchievements', JSON.stringify(unlockedAchievements));
 
     if (document.querySelector('[data-pokemon-id="0"].revealed')) {
         localStorage.setItem('missingNoRevealed', 'true');
@@ -476,6 +483,7 @@ pokemonInput.addEventListener('keydown', async (event) => {
             feedback.className = 'correct';
             score++;
             updateScoreDisplay();
+            checkAchievements();
             saveGameState();
             if (!isMuted) {
                 const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${pokemon.name}.mp3`;
@@ -520,6 +528,7 @@ pokemonInput.addEventListener('keydown', async (event) => {
                         feedback.className = 'correct';
                         score++;
                         updateScoreDisplay();
+                        checkAchievements();
                         saveGameState();
                         if (!isMuted) {
                             const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${newPokemon.name}.mp3`;
@@ -588,6 +597,7 @@ resetButton.addEventListener('click', () => {
     localStorage.removeItem('snorlaxAwake');
     localStorage.removeItem('rareCandyUsed');
     localStorage.removeItem('gen2Unlocked');
+    localStorage.removeItem('unlockedAchievements');
     location.reload();
 });
 
@@ -608,6 +618,15 @@ itemModalCloseButton.addEventListener('click', () => {
     itemModal.style.display = 'none';
 });
 
+achievementsButton.addEventListener('click', () => {
+    renderAchievements();
+    achievementsModal.style.display = 'block';
+});
+
+achievementsModalCloseButton.addEventListener('click', () => {
+    achievementsModal.style.display = 'none';
+});
+
 window.addEventListener('click', (event) => {
     if (event.target == modal) {
         modal.style.display = 'none';
@@ -617,6 +636,9 @@ window.addEventListener('click', (event) => {
     }
     if (event.target == itemModal) {
         itemModal.style.display = 'none';
+    }
+    if (event.target == achievementsModal) {
+        achievementsModal.style.display = 'none';
     }
 });
 
@@ -796,6 +818,7 @@ function handleItemGuess(normalizedGuessedName) {
                     }
                     score++;
                     scoreCounter.textContent = `Score: ${score} / 151`;
+                    checkAchievements();
                     saveGameState();
                 }
             }, 3000);
@@ -825,6 +848,7 @@ function handleItemGuess(normalizedGuessedName) {
             }
             score++;
             scoreCounter.textContent = `Score: ${score} / 151`;
+            checkAchievements();
             saveGameState();
 
             const itemMessage = document.getElementById('item-message');
@@ -869,3 +893,67 @@ function handleItemGuess(normalizedGuessedName) {
 
 fetchPokemonData();
 setInterval(transformDitto, 30000);
+
+function renderAchievements() {
+    const achievementsGrid = document.getElementById('achievements-grid');
+    achievementsGrid.innerHTML = '';
+
+    for (const id in achievements) {
+        const achievement = achievements[id];
+        const badge = document.createElement('div');
+        badge.classList.add('achievement-badge');
+        const isUnlocked = unlockedAchievements.includes(id);
+
+        if (!isUnlocked) {
+            badge.classList.add('locked');
+        }
+
+        badge.innerHTML = `
+            ${achievement.icon}
+            <div class="tooltip">
+                <h4>${achievement.name}</h4>
+                <p>${achievement.description}</p>
+            </div>
+        `;
+        achievementsGrid.appendChild(badge);
+    }
+}
+
+function checkAchievements() {
+    const revealedPokemonIds = new Set(
+        [...document.querySelectorAll('.pokemon-tile.revealed')]
+        .map(tile => parseInt(tile.dataset.pokemonId))
+    );
+
+    for (const id in achievements) {
+        if (!unlockedAchievements.includes(id)) {
+            const achievement = achievements[id];
+            const requiredPokemon = new Set(achievement.pokemon);
+            const isCompleted = [...requiredPokemon].every(pokemonId => revealedPokemonIds.has(pokemonId));
+
+            if (isCompleted) {
+                unlockedAchievements.push(id);
+                showAchievementBanner(achievement);
+            }
+        }
+    }
+}
+
+function showAchievementBanner(achievement) {
+    let banner = document.getElementById('achievement-banner');
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'achievement-banner';
+        document.body.appendChild(banner);
+    }
+
+    banner.innerHTML = `
+        ${achievement.icon}
+        <span><strong>${achievement.name}</strong> Unlocked!</span>
+    `;
+
+    banner.classList.add('show');
+    setTimeout(() => {
+        banner.classList.remove('show');
+    }, 4000);
+}
