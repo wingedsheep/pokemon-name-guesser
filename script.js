@@ -399,7 +399,7 @@ function saveGameState() {
     localStorage.setItem('unlockedAchievements', JSON.stringify(unlockedAchievements));
     localStorage.setItem('guessedWithoutHints', JSON.stringify(guessedWithoutHints));
 
-    if (document.querySelector('[data-pokemon-id="0"].revealed')) {
+    if (document.querySelector('[data-pokemon-id="0"].revealed') || localStorage.getItem('missingNoRevealed') === 'true') {
         localStorage.setItem('missingNoRevealed', 'true');
     }
 }
