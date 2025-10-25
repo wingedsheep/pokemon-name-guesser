@@ -908,11 +908,14 @@ function renderAchievements() {
             badge.classList.add('locked');
         }
 
+        const tooltipName = isUnlocked ? achievement.name : 'Locked Achievement';
+        const tooltipDescription = isUnlocked ? achievement.description : 'Guess more Pokémon to unlock!';
+
         badge.innerHTML = `
             ${achievement.icon}
             <div class="tooltip">
-                <h4>${achievement.name}</h4>
-                <p>${achievement.description}</p>
+                <h4>${tooltipName}</h4>
+                <p>${tooltipDescription}</p>
             </div>
         `;
         achievementsGrid.appendChild(badge);
