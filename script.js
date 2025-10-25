@@ -1271,7 +1271,7 @@ function checkAchievements() {
             const timeLimitMilliseconds = timeLimitSeconds * 1000;
             const startTime = parseInt(localStorage.getItem('gameStartTime'));
             const elapsedTime = new Date().getTime() - startTime;
-            if (revealedGen1PokemonIds.size >= count && elapsedTime <= timeLimitMilliseconds) {
+            if (revealedGen1PokemonIds.size >= 151 && elapsedTime <= timeLimitMilliseconds) {
                 isCompleted = true;
             }
         } else if (id.startsWith('hints-')) {
