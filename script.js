@@ -1,9 +1,8 @@
 const pokemonGrid = document.getElementById('pokemon-grid');
 const pokemonInput = document.getElementById('pokemon-input');
-const feedback = document.getElementById('feedback');
+const feedbackContainer = document.getElementById('feedback-container');
 const muteButton = document.getElementById('mute-button');
 const hintButton = document.getElementById('hint-button');
-const hintDisplay = document.getElementById('hint-display');
 const resetButton = document.getElementById('reset-button');
 const scoreCounter = document.getElementById('score-counter');
 const modal = document.getElementById('pokedex-modal');
@@ -66,9 +65,9 @@ async function handleRareCandyEvolution(pokemonName) {
     const basePokemonTile = document.querySelector(`[data-pokemon-id='${basePokemon?.id}']`);
 
     if (!basePokemon || !basePokemonTile || !basePokemonTile.classList.contains('revealed')) {
-        feedback.textContent = 'You must choose a Pokémon you have already revealed.';
-        feedback.className = 'incorrect';
-        setTimeout(() => feedback.textContent = '', 3000);
+        feedbackContainer.textContent = 'You must choose a Pokémon you have already revealed.';
+        feedbackContainer.className = 'incorrect';
+        setTimeout(() => feedbackContainer.textContent = '', 3000);
         return;
     }
 
@@ -102,9 +101,9 @@ async function handleRareCandyEvolution(pokemonName) {
         const evolutionTargetName = findEvolution(evolutionData.chain);
 
         if (!evolutionTargetName) {
-            feedback.textContent = `${basePokemon.name} can't evolve any further.`;
-            feedback.className = 'incorrect';
-            setTimeout(() => feedback.textContent = '', 3000);
+            feedbackContainer.textContent = `${basePokemon.name} can't evolve any further.`;
+            feedbackContainer.className = 'incorrect';
+            setTimeout(() => feedbackContainer.textContent = '', 3000);
             return;
         }
 
@@ -112,9 +111,9 @@ async function handleRareCandyEvolution(pokemonName) {
         const evolutionTile = evolutionPokemonData ? document.querySelector(`[data-pokemon-id='${evolutionPokemonData.id}']`) : null;
 
         if (evolutionTile && evolutionTile.classList.contains('revealed')) {
-            feedback.textContent = `${evolutionTargetName} has already been revealed.`;
-            feedback.className = 'incorrect';
-            setTimeout(() => feedback.textContent = '', 3000);
+            feedbackContainer.textContent = `${evolutionTargetName} has already been revealed.`;
+            feedbackContainer.className = 'incorrect';
+            setTimeout(() => feedbackContainer.textContent = '', 3000);
             return;
         }
 
@@ -172,17 +171,17 @@ async function handleRareCandyEvolution(pokemonName) {
             scoreCounter.textContent = `Score: ${score} / 151`;
             localStorage.setItem('rareCandyUsed', 'true');
             saveGameState();
-            feedback.textContent = `Congratulations! Your ${basePokemon.name} evolved into ${evolutionDetails.name}!`;
-            feedback.className = 'correct';
-            setTimeout(() => feedback.textContent = '', 3000);
+            feedbackContainer.textContent = `Congratulations! Your ${basePokemon.name} evolved into ${evolutionDetails.name}!`;
+            feedbackContainer.className = 'correct';
+            setTimeout(() => feedbackContainer.textContent = '', 3000);
 
         }, 3000);
 
     } catch (error) {
         console.error('Error during evolution:', error);
-        feedback.textContent = 'Something went wrong with the evolution process.';
-        feedback.className = 'incorrect';
-        setTimeout(() => feedback.textContent = '', 3000);
+        feedbackContainer.textContent = 'Something went wrong with the evolution process.';
+        feedbackContainer.className = 'incorrect';
+        setTimeout(() => feedbackContainer.textContent = '', 3000);
     }
 }
 let gen2Unlocked = false;
@@ -375,8 +374,9 @@ function saveGameState() {
 }
 
 pokemonInput.addEventListener('input', () => {
-    if (hintDisplay.textContent) {
-        hintDisplay.textContent = '';
+    if (feedbackContainer.classList.contains('hint')) {
+        feedbackContainer.textContent = '';
+        feedbackContainer.className = '';
     }
 });
 
@@ -400,9 +400,9 @@ pokemonInput.addEventListener('keydown', async (event) => {
         if (leader) {
             displayGymLeaderModal(leader);
             pokemonInput.value = '';
-            feedback.textContent = `You've met Gym Leader ${leader.name}!`;
-            feedback.className = 'correct';
-            setTimeout(() => feedback.textContent = '', 2000);
+            feedbackContainer.textContent = `You've met Gym Leader ${leader.name}!`;
+            feedbackContainer.className = 'correct';
+            setTimeout(() => feedbackContainer.textContent = '', 2000);
             return;
         }
 
@@ -423,8 +423,8 @@ pokemonInput.addEventListener('keydown', async (event) => {
             }
 
             if (newlyRevealed > 0) {
-                feedback.textContent = 'Correct!';
-                feedback.className = 'correct';
+                feedbackContainer.textContent = 'Correct!';
+                feedbackContainer.className = 'correct';
                 score += newlyRevealed;
                 updateScoreDisplay();
                 saveGameState();
@@ -433,12 +433,12 @@ pokemonInput.addEventListener('keydown', async (event) => {
                     new Audio(`https://play.pokemonshowdown.com/audio/cries/nidoranm.mp3`).play();
                 }
             } else {
-                feedback.textContent = 'You have already revealed both Nidorans!';
-                feedback.className = 'incorrect';
+                feedbackContainer.textContent = 'You have already revealed both Nidorans!';
+                feedbackContainer.className = 'incorrect';
             }
 
             pokemonInput.value = '';
-            setTimeout(() => feedback.textContent = '', 2000);
+            setTimeout(() => feedbackContainer.textContent = '', 2000);
             return;
         }
 
@@ -476,7 +476,7 @@ pokemonInput.addEventListener('keydown', async (event) => {
 
             displayPokemonModal(missingNo);
             pokemonInput.value = '';
-            setTimeout(() => feedback.textContent = '', 2000);
+            setTimeout(() => feedbackContainer.textContent = '', 2000);
             return;
         }
 
@@ -486,8 +486,8 @@ pokemonInput.addEventListener('keydown', async (event) => {
             almostCorrectPokemon = null;
             const tile = document.querySelector(`[data-pokemon-id='${pokemon.id}']`);
             revealPokemon(pokemon, tile);
-            feedback.textContent = 'Correct!';
-            feedback.className = 'correct';
+            feedbackContainer.textContent = 'Correct!';
+            feedbackContainer.className = 'correct';
             score++;
             updateScoreDisplay();
             checkAchievements();
@@ -531,8 +531,8 @@ pokemonInput.addEventListener('keydown', async (event) => {
                         }
                         revealPokemon(newPokemon, tile);
 
-                        feedback.textContent = 'Correct!';
-                        feedback.className = 'correct';
+                        feedbackContainer.textContent = 'Correct!';
+                        feedbackContainer.className = 'correct';
                         score++;
                         updateScoreDisplay();
                         checkAchievements();
@@ -550,8 +550,8 @@ pokemonInput.addEventListener('keydown', async (event) => {
 
             if (!foundGen2Pokemon) {
                 if (almostCorrectPokemon) {
-                    feedback.textContent = `The correct spelling was ${almostCorrectPokemon.name}!`;
-                    feedback.className = 'incorrect';
+                    feedbackContainer.textContent = `The correct spelling was ${almostCorrectPokemon.name}!`;
+                    feedbackContainer.className = 'incorrect';
                     almostCorrectPokemon = null;
                 } else {
                     const revealedPokemonIds = [...document.querySelectorAll('.pokemon-tile.revealed')].map(tile => parseInt(tile.dataset.pokemonId));
@@ -560,15 +560,15 @@ pokemonInput.addEventListener('keydown', async (event) => {
                     for (const p of unrevealedPokemon) {
                         if (levenshteinDistance(normalizedGuessedName, normalizeName(p.name)) <= 2) {
                             almostCorrectPokemon = p;
-                            feedback.textContent = 'You are very close! Almost there!';
-                            feedback.className = 'incorrect';
+                            feedbackContainer.textContent = 'You are very close! Almost there!';
+                            feedbackContainer.className = 'incorrect';
                             foundAlmostCorrect = true;
                             break;
                         }
                     }
                     if (!foundAlmostCorrect) {
-                        feedback.textContent = 'Wrong!';
-                        feedback.className = 'incorrect';
+                        feedbackContainer.textContent = 'Wrong!';
+                        feedbackContainer.className = 'incorrect';
                     }
                 }
                 pokemonInput.classList.add('shake');
@@ -577,13 +577,14 @@ pokemonInput.addEventListener('keydown', async (event) => {
         }
 
         pokemonInput.value = '';
-        setTimeout(() => feedback.textContent = '', 2000);
+        setTimeout(() => feedbackContainer.textContent = '', 2000);
     }
 });
 
 hintButton.addEventListener('click', () => {
-    if (hintDisplay.textContent) {
-        hintDisplay.textContent = '';
+    if (feedbackContainer.classList.contains('hint')) {
+        feedbackContainer.textContent = '';
+        feedbackContainer.className = '';
         return;
     }
 
@@ -595,12 +596,14 @@ hintButton.addEventListener('click', () => {
         const hints = pokemonHints[randomPokemon.id];
         if (hints && hints.length > 0) {
             const randomHint = hints[Math.floor(Math.random() * hints.length)];
-            hintDisplay.textContent = `${randomHint}`;
+            feedbackContainer.textContent = `${randomHint}`;
         } else {
-            hintDisplay.textContent = `Starts with '${randomPokemon.name.charAt(0)}', ends with '${randomPokemon.name.charAt(randomPokemon.name.length - 1)}'.`;
+            feedbackContainer.textContent = `Starts with '${randomPokemon.name.charAt(0)}', ends with '${randomPokemon.name.charAt(randomPokemon.name.length - 1)}'.`;
         }
+        feedbackContainer.className = 'hint';
     } else {
-        hintDisplay.textContent = 'All Pokémon have been guessed!';
+        feedbackContainer.textContent = 'All Pokémon have been guessed!';
+        feedbackContainer.className = 'incorrect';
     }
 });
 
@@ -883,26 +886,26 @@ function handleItemGuess(normalizedGuessedName) {
             const snorlaxImage = snorlaxTile.querySelector('img');
             snorlaxImage.src = 'https://mystickermania.com/cdn/stickers/pokemon/pkm-snorlax-waves-hand-512x512.png';
             localStorage.setItem('snorlaxAwake', 'true');
-            feedback.textContent = 'Snorlax woke up!';
-            feedback.className = 'correct';
+            feedbackContainer.textContent = 'Snorlax woke up!';
+            feedbackContainer.className = 'correct';
         } else {
-            feedback.textContent = 'A large Pokémon is blocking the path!';
-            feedback.className = '';
+            feedbackContainer.textContent = 'A large Pokémon is blocking the path!';
+            feedbackContainer.className = '';
         }
-        setTimeout(() => feedback.textContent = '', 3000);
+        setTimeout(() => feedbackContainer.textContent = '', 3000);
         return true;
     }
 
     if (normalizedGuessedName === 'rarecandy') {
         if (localStorage.getItem('rareCandyUsed') === 'true') {
-            feedback.textContent = 'You have already used your Rare Candy.';
-            feedback.className = 'incorrect';
+            feedbackContainer.textContent = 'You have already used your Rare Candy.';
+            feedbackContainer.className = 'incorrect';
         } else {
-            feedback.textContent = 'Which Pokémon will you give the Rare Candy to?';
-            feedback.className = '';
+            feedbackContainer.textContent = 'Which Pokémon will you give the Rare Candy to?';
+            feedbackContainer.className = '';
             isWaitingForPokemonToEvolve = true;
         }
-        setTimeout(() => feedback.textContent = '', 4000);
+        setTimeout(() => feedbackContainer.textContent = '', 4000);
         return true;
     }
 
