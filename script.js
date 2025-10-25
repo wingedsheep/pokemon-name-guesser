@@ -142,7 +142,7 @@ async function handleRareCandyEvolution(pokemonName) {
                 name: details.name,
                 id: details.id,
                 image: `https://raw.githubusercontent.com/jnovack/pokemon-svg/master/svg/${details.id}.svg`,
-                isShiny: Math.random() < 1 / 100,
+                isShiny: Math.random() < 1 / 80,
                 types: details.types.map(typeInfo => typeInfo.type.name),
                 height: details.height,
                 weight: details.weight,
@@ -235,7 +235,7 @@ async function fetchPokemonData() {
 
             let isShiny = shinyPokemonIds.includes(pokemonDetails.id);
             if (!localStorage.getItem('shinyPokemon')) {
-                isShiny = Math.random() < 1 / 100;
+                isShiny = Math.random() < 1 / 80;
             }
 
             return {
@@ -548,7 +548,7 @@ pokemonInput.addEventListener('keydown', async (event) => {
                         const shinyPokemonIds = JSON.parse(localStorage.getItem('shinyPokemon')) || [];
                         let isShiny = shinyPokemonIds.includes(pokemonDetails.id);
                         if (!localStorage.getItem('shinyPokemon')) {
-                            isShiny = Math.random() < 1 / 150;
+                            isShiny = Math.random() < 1 / 80;
                         }
 
                         const newPokemon = {
