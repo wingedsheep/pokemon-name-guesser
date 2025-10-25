@@ -1,5 +1,5 @@
 body {
-    font-family: "Pixelify Sans", sans-serif;
+    font-family: "DotGothic16", sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -32,7 +32,7 @@ h1 {
     color: #f0f0f0;
     border: 2px outset #555;
     padding: 10px;
-    font-family: "Pixelify Sans", sans-serif;
+    font-family: "DotGothic16", sans-serif;
     cursor: pointer;
     margin-left: 10px;
     font-size: 20px;
@@ -51,7 +51,7 @@ h1 {
     color: #f0f0f0;
     border: 2px outset #555;
     padding: 10px;
-    font-family: "Pixelify Sans", sans-serif;
+    font-family: "DotGothic16", sans-serif;
     margin-left: 10px;
     font-size: 20px;
 }
@@ -64,7 +64,7 @@ h1 {
     margin-bottom: 0;
     background-color: #3e3e3e;
     color: #f0f0f0;
-    font-family: "Pixelify Sans", sans-serif;
+    font-family: "DotGothic16", sans-serif;
 }
 
 #pokemon-grid {
@@ -240,7 +240,7 @@ h1 {
     width: 80%;
     max-width: 500px;
     color: #f0f0f0;
-    font-family: "Pixelify Sans", sans-serif;
+    font-family: "DotGothic16", sans-serif;
     position: relative;
 }
 
@@ -277,7 +277,7 @@ h1 {
     color: #f0f0f0;
     border: 2px outset #555;
     padding: 10px 20px;
-    font-family: "Pixelify Sans", sans-serif;
+    font-family: "DotGothic16", sans-serif;
     cursor: pointer;
     font-size: 18px;
 }
@@ -456,7 +456,7 @@ h1 {
     color: #f0f0f0;
     border: 2px outset #555;
     padding: 10px 20px;
-    font-family: "Pixelify Sans", sans-serif;
+    font-family: "DotGothic16", sans-serif;
     cursor: pointer;
     font-size: 18px;
     display: block;
