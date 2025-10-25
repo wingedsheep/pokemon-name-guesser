@@ -490,5 +490,79 @@ const achievements = {
         <circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2" fill="#c03028"/>
         <path d="M 9 10 L 11 10 L 11 14 L 9 14 Z M 13 10 L 15 10 L 15 14 L 13 14 Z" fill="#fff"/>
       </svg>`
+  },
+
+  // Speedrunner Achievements
+  "speedrunner-50": {
+    name: "Warp Speed",
+    description: "Guess 50 Pokémon in under 5 minutes.",
+    pokemon: [], // Custom logic
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2" fill="#ADD8E6"/>
+        <path d="M 12 6 V 12 L 16 16" stroke="#000" stroke-width="2" fill="none"/>
+        <path d="M 10 4 L 14 4" stroke="#000" stroke-width="1"/>
+      </svg>`
+  },
+  "speedrunner-100": {
+    name: "Lightning Fast",
+    description: "Guess 100 Pokémon in under 10 minutes.",
+    pokemon: [], // Custom logic
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2" fill="#FFD700"/>
+        <path d="M 12 6 V 12 L 16 16" stroke="#000" stroke-width="2" fill="none"/>
+        <path d="M 10 4 L 14 4" stroke="#000" stroke-width="1"/>
+        <path d="M 8 8 L 6 10 M 16 8 L 18 10" stroke="#000" stroke-width="1"/>
+      </svg>`
+  },
+  "speedrunner-151": {
+    name: "Speedrunner",
+    description: "Guess all 151 Pokémon in under 15 minutes.",
+    pokemon: [], // Custom logic
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#FF4500" stroke-width="2" fill="#FFA500"/>
+        <path d="M 12 6 V 12 L 16 16" stroke="#000" stroke-width="2" fill="none"/>
+        <path d="M 10 4 L 14 4" stroke="#000" stroke-width="1"/>
+        <path d="M 8 8 L 4 8 M 16 8 L 20 8" stroke="#000" stroke-width="2"/>
+      </svg>`
+  },
+
+  // Economical with Hints Achievements
+  "hints-10": {
+    name: "Hint Savvy",
+    description: "Guess all 151 Pokémon using 10 hints or less.",
+    pokemon: [], // Custom logic
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2" fill="#90EE90"/>
+        <path d="M 12 8 L 12 16 M 10 10 L 14 14 M 10 14 L 14 10" stroke="#3CB371" stroke-width="2"/>
+        <circle cx="12" cy="7" r="1" fill="#3CB371"/>
+      </svg>`
+  },
+  "hints-5": {
+    name: "Economical",
+    description: "Guess all 151 Pokémon using 5 hints or less.",
+    pokemon: [], // Custom logic
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2" fill="#FFB6C1"/>
+        <path d="M 12 8 L 12 16 M 10 10 L 14 14 M 10 14 L 14 10" stroke="#FF69B4" stroke-width="2"/>
+        <circle cx="12" cy="7" r="1" fill="#FF69B4"/>
+        <path d="M 9 6 L 15 6" stroke="#FF1493" stroke-width="1"/>
+      </svg>`
+  },
+  "hints-0": {
+    name: "Zero Hints!",
+    description: "Guess all 151 Pokémon without using any hints.",
+    pokemon: [], // Custom logic
+    icon: `
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <circle cx="12" cy="12" r="10" stroke="#FFD700" stroke-width="2" fill="#FFFF00"/>
+        <path d="M 12 8 L 12 16 M 10 10 L 14 14 M 10 14 L 14 10" stroke="#DAA520" stroke-width="2"/>
+        <circle cx="12" cy="7" r="1" fill="#DAA520"/>
+        <path d="M 8 5 L 16 5" stroke="#B8860B" stroke-width="2"/>
+      </svg>`
   }
 };
