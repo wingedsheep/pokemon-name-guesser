@@ -29,8 +29,8 @@
             <button id="mute-button"></button>
             <button id="reset-button">Reset</button>
             <button id="achievements-button">🏆</button>
-            <div id="score-counter">Score: 0 / 151</div>
-            <div id="hint-counter">Hints: 0</div>
+            <div id="score-counter" class="clickable">Score: <span id="score">0 / 151</span></div>
+            <div id="hint-counter">Hints: <span id="hints-used">0</span></div>
         </div>
         <div id="feedback-container"></div>
     </div>
@@ -39,13 +39,30 @@
     <div id="achievements-modal" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close-button">&times;</span>
-            <h2>Top Scores</h2>
-            <div id="top-scores-container">
-                <ol id="top-scores-list"></ol>
-            </div>
             <h2>Achievements</h2>
             <h3 id="achievements-counter"></h3>
             <div id="achievements-grid"></div>
+        </div>
+    </div>
+
+    <div id="top-scores-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Top Scores</h2>
+            <div id="top-scores-container">
+                <table id="top-scores-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Guessed</th>
+                            <th>Hints</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="top-scores-list">
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -103,7 +120,6 @@
             <p>Your dedication and skills are truly unmatched. You've proven yourself to be a true Pokémon Champion.</p>
             <p><strong>Time Taken:</strong> <span id="champion-time"></span></p>
             <p><strong>Hints Used:</strong> <span id="champion-hints"></span></p>
-            <p id="champion-rank"></p>
             <button id="champion-modal-close-button">Continue your journey!</button>
         </div>
     </div>

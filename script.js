@@ -12,6 +12,7 @@ const itemModal = document.getElementById('item-modal');
 const achievementsModal = document.getElementById('achievements-modal');
 const oakModal = document.getElementById('oak-modal');
 const championModal = document.getElementById('champion-modal');
+const topScoresModal = document.getElementById('top-scores-modal');
 const pokedexCloseButton = document.querySelector('#pokedex-modal .close-button');
 const prevPokemonButton = document.getElementById('prev-pokemon');
 const nextPokemonButton = document.getElementById('next-pokemon');
@@ -19,6 +20,7 @@ const gymLeaderCloseButton = document.querySelector('#gym-leader-modal .close-bu
 const itemModalCloseButton = document.querySelector('#item-modal .close-button');
 const achievementsButton = document.getElementById('achievements-button');
 const achievementsModalCloseButton = document.querySelector('#achievements-modal .close-button');
+const topScoresModalCloseButton = document.querySelector('#top-scores-modal .close-button');
 const oakModalCloseButton = document.getElementById('oak-modal-close-button');
 const oakModalXButton = document.querySelector('#oak-modal .close-button');
 const championModalCloseButton = document.getElementById('champion-modal-close-button');
@@ -687,6 +689,27 @@ hintButton.addEventListener('click', () => {
 });
 
 resetButton.addEventListener('click', () => {
+    const revealedPokemonGen1 = [...document.querySelectorAll('.pokemon-tile.revealed')]
+        .map(tile => parseInt(tile.dataset.pokemonId))
+        .filter(id => id >= 1 && id <= 151);
+
+    if (revealedPokemonGen1.length > 0) {
+        const startTime = parseInt(localStorage.getItem('gameStartTime'));
+        const endTime = new Date().getTime();
+        const timeTaken = endTime - startTime;
+
+        const newScore = {
+            guessed: revealedPokemonGen1.length,
+            hints: hintsUsed,
+            time: timeTaken
+        };
+
+        let existingScores = JSON.parse(localStorage.getItem('topScores')) || [];
+        existingScores.push(newScore);
+        sortTopScores(existingScores);
+        localStorage.setItem('topScores', JSON.stringify(existingScores));
+    }
+
     localStorage.removeItem('revealedPokemon');
     localStorage.removeItem('pokemonGameScore');
     localStorage.removeItem('shinyPokemon');
@@ -730,6 +753,15 @@ achievementsModalCloseButton.addEventListener('click', () => {
     achievementsModal.style.display = 'none';
 });
 
+scoreCounter.addEventListener('click', () => {
+    renderTopScores();
+    topScoresModal.style.display = 'block';
+});
+
+topScoresModalCloseButton.addEventListener('click', () => {
+    topScoresModal.style.display = 'none';
+});
+
 window.addEventListener('click', (event) => {
     if (event.target == modal) {
         modal.style.display = 'none';
@@ -742,6 +774,9 @@ window.addEventListener('click', (event) => {
     }
     if (event.target == achievementsModal) {
         achievementsModal.style.display = 'none';
+    }
+    if (event.target == topScoresModal) {
+        topScoresModal.style.display = 'none';
     }
     if (event.target == oakModal) {
         oakModal.style.display = 'none';
@@ -759,23 +794,18 @@ function showChampionModal() {
     const startTime = parseInt(localStorage.getItem('gameStartTime'));
     const endTime = new Date().getTime();
     const timeTaken = endTime - startTime;
+    const revealedPokemonGen1 = [...document.querySelectorAll('.pokemon-tile.revealed')]
+        .map(tile => parseInt(tile.dataset.pokemonId))
+        .filter(id => id >= 1 && id <= 151);
 
     const newScore = {
+        guessed: revealedPokemonGen1.length,
         hints: hintsUsed,
         time: timeTaken
     };
 
     topScores.push(newScore);
-    topScores.sort((a, b) => {
-        if (a.hints !== b.hints) {
-            return a.hints - b.hints;
-        }
-        return a.time - b.time;
-    });
-
-    if (topScores.length > 10) {
-        topScores.length = 10;
-    }
+    sortTopScores(topScores);
 
     saveGameState();
 
@@ -794,10 +824,6 @@ function showChampionModal() {
 
     document.getElementById('champion-time').textContent = timeString;
     document.getElementById('champion-hints').textContent = hintsUsed;
-
-    const rank = topScores.findIndex(score => score.time === newScore.time && score.hints === newScore.hints);
-    const rankMessage = rank !== -1 ? `You've made it to the Top 10! Your rank is #${rank + 1}.` : "You didn't make it into the Top 10 this time. Try again!";
-    document.getElementById('champion-rank').textContent = rankMessage;
 
     championModal.style.display = 'block';
 }
@@ -1123,29 +1149,65 @@ function handleItemGuess(normalizedGuessedName) {
 fetchPokemonData();
 setInterval(transformDitto, 30000);
 
+function sortTopScores(scores) {
+    scores.sort((a, b) => {
+        if (b.guessed !== a.guessed) {
+            return b.guessed - a.guessed;
+        }
+        if (a.hints !== b.hints) {
+            return a.hints - b.hints;
+        }
+        return a.time - b.time;
+    });
+    if (scores.length > 10) {
+        scores.length = 10;
+    }
+}
+
 function renderTopScores() {
     const topScoresList = document.getElementById('top-scores-list');
     topScoresList.innerHTML = '';
 
     if (topScores.length === 0) {
-        topScoresList.innerHTML = '<li>No top scores yet. Be the first!</li>';
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 4;
+        td.textContent = 'No top scores yet. Be the first!';
+        tr.appendChild(td);
+        topScoresList.appendChild(tr);
         return;
     }
 
-    topScores.forEach(score => {
-        const li = document.createElement('li');
+    sortTopScores(topScores);
+
+    topScores.forEach((score, index) => {
+        const tr = document.createElement('tr');
+
+        const rankTd = document.createElement('td');
+        rankTd.textContent = `#${index + 1}`;
+        tr.appendChild(rankTd);
+
+        const guessedTd = document.createElement('td');
+        guessedTd.textContent = score.guessed;
+        tr.appendChild(guessedTd);
+
+        const hintsTd = document.createElement('td');
+        hintsTd.textContent = score.hints;
+        tr.appendChild(hintsTd);
+
+        const timeTd = document.createElement('td');
         const timeTaken = score.time;
         const hours = Math.floor(timeTaken / (1000 * 60 * 60));
         const minutes = Math.floor((timeTaken % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((timeTaken % (1000 * 60)) / 1000);
-        const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        li.textContent = `Time: ${timeString}, Hints: ${score.hints}`;
-        topScoresList.appendChild(li);
+        timeTd.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        tr.appendChild(timeTd);
+
+        topScoresList.appendChild(tr);
     });
 }
 
 function renderAchievements() {
-    renderTopScores();
     const achievementsGrid = document.getElementById('achievements-grid');
     const achievementsCounter = document.getElementById('achievements-counter');
     achievementsGrid.innerHTML = '';
