@@ -430,6 +430,24 @@ h1 {
     transition: opacity 0.3s;
 }
 
+#top-scores-container {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+}
+
+#top-scores-list {
+    list-style-type: decimal;
+    padding-left: 20px;
+}
+
+#top-scores-list li {
+    margin-bottom: 5px;
+    font-size: 1.1em;
+}
+
 .achievement-badge:hover .tooltip {
     visibility: visible;
     opacity: 1;
