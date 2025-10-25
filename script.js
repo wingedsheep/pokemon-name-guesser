@@ -404,7 +404,6 @@ pokemonInput.addEventListener('keydown', async (event) => {
             pokemonInput.value = '';
             feedbackContainer.textContent = `You've met Gym Leader ${leader.name}!`;
             feedbackContainer.className = 'correct';
-            setTimeout(() => feedbackContainer.textContent = '', 2000);
             return;
         }
 
@@ -440,7 +439,6 @@ pokemonInput.addEventListener('keydown', async (event) => {
             }
 
             pokemonInput.value = '';
-            setTimeout(() => feedbackContainer.textContent = '', 2000);
             return;
         }
 
@@ -478,7 +476,6 @@ pokemonInput.addEventListener('keydown', async (event) => {
 
             displayPokemonModal(missingNo);
             pokemonInput.value = '';
-            setTimeout(() => feedbackContainer.textContent = '', 2000);
             return;
         }
 
@@ -584,7 +581,6 @@ pokemonInput.addEventListener('keydown', async (event) => {
         }
 
         pokemonInput.value = '';
-        setTimeout(() => feedbackContainer.textContent = '', 2000);
     }
 });
 
@@ -900,7 +896,6 @@ function handleItemGuess(normalizedGuessedName) {
             feedbackContainer.textContent = 'A large Pokémon is blocking the path!';
             feedbackContainer.className = '';
         }
-        setTimeout(() => feedbackContainer.textContent = '', 3000);
         return true;
     }
 
@@ -913,7 +908,6 @@ function handleItemGuess(normalizedGuessedName) {
             feedbackContainer.className = '';
             isWaitingForPokemonToEvolve = true;
         }
-        setTimeout(() => feedbackContainer.textContent = '', 4000);
         return true;
     }
 
