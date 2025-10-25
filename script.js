@@ -484,13 +484,13 @@ pokemonInput.addEventListener('keydown', async (event) => {
         if (pokemon) {
             const tile = document.querySelector(`[data-pokemon-id='${pokemon.id}']`);
             if (tile.classList.contains('revealed')) {
-                feedback.textContent = 'You have already discovered this Pokémon!';
-                feedback.className = 'incorrect';
+                feedbackContainer.textContent = 'You have already discovered this Pokémon!';
+                feedbackContainer.className = 'incorrect';
             } else {
                 almostCorrectPokemon = null;
                 revealPokemon(pokemon, tile);
-                feedback.textContent = 'Correct!';
-                feedback.className = 'correct';
+                feedbackContainer.textContent = 'Correct!';
+                feedbackContainer.className = 'correct';
                 score++;
                 updateScoreDisplay();
                 checkAchievements();
