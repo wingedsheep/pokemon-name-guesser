@@ -622,6 +622,7 @@ resetButton.addEventListener('click', () => {
     localStorage.removeItem('rareCandyUsed');
     localStorage.removeItem('gen2Unlocked');
     localStorage.removeItem('unlockedAchievements');
+    localStorage.removeItem('missingNoRevealed')
     location.reload();
 });
 
