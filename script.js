@@ -1227,7 +1227,7 @@ function renderAchievements() {
         }
 
         const tooltipName = isUnlocked ? achievement.name : 'Locked Achievement';
-        const tooltipDescription = isUnlocked ? achievement.description : 'Guess more Pokémon to unlock!';
+        const tooltipDescription = isUnlocked ? achievement.description : (achievement.subtleHint || 'Guess more Pokémon to unlock!');
 
         badge.innerHTML = `
             ${achievement.icon}
