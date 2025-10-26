@@ -3,6 +3,7 @@ const achievements = {
   "kanto-champion": {
     name: "Kanto Champion",
     description: "Guess all 151 original Pokémon.",
+    subtleHint: "Do you have what it takes to complete the Pokédex?",
     pokemon: Array.from({ length: 151 }, (_, i) => i + 1),
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -16,6 +17,7 @@ const achievements = {
   "pokedex-order": {
     name: "Professor Oak's Favorite",
     description: "Guessed all 151 original Pokémon in perfect Pokédex order. You've made him proud!",
+    subtleHint: "Professor Oak appreciates a well-organized Pokédex, starting from the very beginning.",
     pokemon: [], // Custom logic
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -30,6 +32,7 @@ const achievements = {
   "pallet-town": {
     name: "Pallet Town Rookie",
     description: "Guess all Pokémon available in Pallet Town.",
+    subtleHint: "Every journey begins somewhere. What can you find in your hometown?",
     pokemon: [1, 4, 7],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -42,6 +45,7 @@ const achievements = {
   "route-1": {
     name: "Route 1 Wanderer",
     description: "Guess all Pokémon found on Route 1.",
+    subtleHint: "Just outside Pallet Town, common creatures flutter and scurry.",
     pokemon: [16, 19],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -53,6 +57,7 @@ const achievements = {
   "viridian-city": {
     name: "Viridian City Fisher",
     description: "Guess all Pokémon found in Viridian City.",
+    subtleHint: "Even in a city, a fishing rod can reveal hidden life.",
     pokemon: [60, 118],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -64,6 +69,7 @@ const achievements = {
     "route-22": {
     name: "Route 22 Challenger",
     description: "Guess all Pokémon on Route 22.",
+    subtleHint: "A challenging path west of Viridian City, where aggressive creatures dwell.",
     pokemon: [19, 21, 56, 60, 118],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -75,6 +81,7 @@ const achievements = {
   "route-2": {
     name: "Route 2 Collector",
     description: "Guess all Pokémon on Route 2.",
+    subtleHint: "North of Viridian City, the path is teeming with early-route inhabitants.",
     pokemon: [16, 19, 10, 13, 25],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -85,6 +92,7 @@ const achievements = {
   "viridian-forest": {
     name: "Viridian Forest Explorer",
     description: "Guess all Pokémon from Viridian Forest.",
+    subtleHint: "A dark and winding forest, famous for its bugs and a rare electric mouse.",
     pokemon: [10, 11, 13, 14, 25],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -97,6 +105,7 @@ const achievements = {
   "route-3": {
     name: "Route 3 Adventurer",
     description: "Guess all Pokémon on Route 3.",
+    subtleHint: "East of Pewter City, a mountainous route with a variety of Pokémon.",
     pokemon: [16, 19, 21, 39, 56],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -109,6 +118,7 @@ const achievements = {
   "mt-moon": {
     name: "Mt. Moon Mountaineer",
     description: "Guess all Pokémon within Mt. Moon.",
+    subtleHint: "A cave known for its strange stones and bat-like inhabitants.",
     pokemon: [41, 74, 46, 35],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -120,6 +130,7 @@ const achievements = {
   "route-4": {
     name: "Route 4 Roamer",
     description: "Guess all Pokémon on Route 4.",
+    subtleHint: "After Mt. Moon, this route leads to Cerulean. What might you find here?",
     pokemon: [19, 21, 23, 27],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -132,6 +143,7 @@ const achievements = {
   "cerulean-city": {
     name: "Cerulean City Diver",
     description: "Guess all Pokémon in Cerulean City.",
+    subtleHint: "Leave no stone unturned in the cerulean depths.",
     pokemon: [60, 118, 129, 54, 98],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -143,6 +155,7 @@ const achievements = {
   "routes-24-25": {
     name: "Nugget Bridge Navigator",
     description: "Guess all Pokémon on Routes 24 & 25.",
+    subtleHint: "Cross the Nugget Bridge and explore the cape to find these Pokémon.",
     pokemon: [10, 11, 13, 14, 16, 63, 69, 43],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -154,6 +167,7 @@ const achievements = {
   "routes-5-6": {
     name: "Underground Path User",
     description: "Guess all Pokémon on Routes 5 & 6.",
+    subtleHint: "The path south of Cerulean, leading to the Underground Path.",
     pokemon: [16, 52, 69, 43, 54, 118],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -165,6 +179,7 @@ const achievements = {
   "digletts-cave": {
     name: "Diglett's Cave Dweller",
     description: "Guess all Pokémon in Diglett's Cave.",
+    subtleHint: "A simple tunnel, home to only two kinds of Pokémon.",
     pokemon: [50, 51],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -177,6 +192,7 @@ const achievements = {
   "route-11": {
     name: "Route 11 Tamer",
     description: "Guess all Pokémon on Route 11.",
+    subtleHint: "East of Vermilion, a quiet route where a large Pokémon sleeps.",
     pokemon: [21, 96, 23, 27],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -187,6 +203,7 @@ const achievements = {
   "vermilion-city": {
     name: "Vermilion City Sailor",
     description: "Guess all Pokémon in Vermilion City.",
+    subtleHint: "The port city, where ships and electric Pokémon are common.",
     pokemon: [60, 116, 98, 129, 118],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -197,6 +214,7 @@ const achievements = {
   "rock-tunnel": {
     name: "Rock Tunnel Survivor",
     description: "Guess all Pokémon in Rock Tunnel.",
+    subtleHint: "A dark tunnel that requires a special technique to illuminate.",
     pokemon: [41, 74, 66, 95],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -207,6 +225,7 @@ const achievements = {
   "pokemon-tower": {
     name: "Pokémon Tower Ghostbuster",
     description: "Guess all Pokémon in the Pokémon Tower.",
+    subtleHint: "A haunted tower in Lavender Town, home to ghosts and grieving spirits.",
     pokemon: [92, 93, 104],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -218,6 +237,7 @@ const achievements = {
   "celadon-city": {
     name: "Celadon City Gambler",
     description: "Guess all Pokémon from Celadon City.",
+    subtleHint: "The largest city in Kanto, with a department store and a game corner.",
     pokemon: [63, 35, 147, 123, 127, 137],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -229,6 +249,7 @@ const achievements = {
   "safari-zone": {
     name: "Safari Zone Specialist",
     description: "Guess all unique Pokémon from the Safari Zone.",
+    subtleHint: "A special park in Fuchsia City where you can catch rare Pokémon.",
     pokemon: [29, 30, 32, 33, 47, 48, 102, 111, 113, 115, 128, 123, 127, 147, 148],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -241,6 +262,7 @@ const achievements = {
   "saffron-city": {
     name: "Saffron City Psychic",
     description: "Guess all gift Pokémon from Saffron City.",
+    subtleHint: "A bustling city, home to a powerful psychic gym and a fighting dojo.",
     pokemon: [106, 107, 131],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -252,6 +274,7 @@ const achievements = {
   "pokemon-mansion": {
     name: "Pokémon Mansion Investigator",
     description: "Guess all Pokémon in the Pokémon Mansion.",
+    subtleHint: "A burnt-down mansion on Cinnabar Island, where secrets of a legendary Pokémon are hidden.",
     pokemon: [19, 20, 37, 58, 88, 89, 109, 110, 132],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -264,6 +287,7 @@ const achievements = {
   "seafoam-islands": {
     name: "Seafoam Islands Explorer",
     description: "Guess all Pokémon in the Seafoam Islands.",
+    subtleHint: "A pair of icy islands, home to a legendary bird of ice.",
     pokemon: [41, 42, 54, 79, 86, 87, 144],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -275,6 +299,7 @@ const achievements = {
   "power-plant": {
     name: "Power Plant Technician",
     description: "Guess all Pokémon in the Power Plant.",
+    subtleHint: "An abandoned power plant, now inhabited by electric Pokémon and a legendary bird of thunder.",
     pokemon: [25, 26, 81, 82, 100, 101, 125, 145],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -285,6 +310,7 @@ const achievements = {
   "victory-road": {
     name: "Victory Road Vanquisher",
     description: "Guess all Pokémon on Victory Road.",
+    subtleHint: "The final challenge before the Pokémon League, where only the strongest Pokémon reside.",
     pokemon: [67, 74, 75, 41, 42, 95, 105, 146],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -298,6 +324,7 @@ const achievements = {
   "fossil-fanatic": {
     name: "Fossil Fanatic",
     description: "Revive both the Dome and Helix fossils.",
+    subtleHint: "Science can bring ancient Pokémon back to life.",
     pokemon: [138, 140],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -309,6 +336,7 @@ const achievements = {
   "eevee-expert": {
     name: "Eevee Expert",
     description: "Evolve Eevee into Vaporeon, Jolteon, and Flareon.",
+    subtleHint: "This special Pokémon can change its very essence with the help of certain stones.",
     pokemon: [134, 135, 136],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -321,6 +349,7 @@ const achievements = {
   "glitch-master": {
     name: "Glitch Master",
     description: "Discover the mysterious MissingNo.",
+    subtleHint: "Be careful on the coast of Cinnabar Island.",
     pokemon: [0],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -334,6 +363,7 @@ const achievements = {
   "no-hints-75": {
     name: "Sixth Sense",
     description: "Guess 75 Pokémon without using any hints.",
+    subtleHint: "True trainers trust their instincts.",
     pokemon: [], // Custom logic
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -345,6 +375,7 @@ const achievements = {
   "no-hints-100": {
     name: "Psychic Intuition",
     description: "Guess 100 Pokémon without using any hints.",
+    subtleHint: "Your knowledge is impressive.",
     pokemon: [], // Custom logic
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -356,6 +387,7 @@ const achievements = {
   "no-hints-125": {
     name: "Clairvoyant",
     description: "Guess 125 Pokémon without using any hints.",
+    subtleHint: "You seem to know every Pokémon.",
     pokemon: [], // Custom logic
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -368,6 +400,7 @@ const achievements = {
   "no-hints-151": {
     name: "Mind Reader",
     description: "Guess all 151 original Pokémon without using any hints.",
+    subtleHint: "A true Pokémon Master relies on memory alone.",
     pokemon: [], // Custom logic
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -383,6 +416,7 @@ const achievements = {
   "gen2-unlocked": {
     name: "A New World",
     description: "Guess your first Pokémon from the Johto region.",
+    subtleHint: "Rumors say there are more Pokémon to discover beyond Kanto.",
     pokemon: [], // Custom logic
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -393,6 +427,7 @@ const achievements = {
   "johto-champion": {
     name: "Johto Champion",
     description: "Guess all 100 Pokémon from the Johto region.",
+    subtleHint: "Can you become a champion in two regions?",
     pokemon: Array.from({ length: 100 }, (_, i) => i + 152),
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -407,6 +442,7 @@ const achievements = {
   "normal-master": {
     name: "Normal Norman",
     description: "Guess all Normal-type Pokémon from Gen 1.",
+    subtleHint: "They may seem ordinary, but they are a versatile bunch.",
     pokemon: [16, 17, 18, 19, 20, 21, 22, 39, 40, 52, 53, 83, 84, 85, 108, 113, 115, 128, 132, 133, 137, 143],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -417,6 +453,7 @@ const achievements = {
   "poison-master": {
     name: "Toxic Tamer",
     description: "Guess all Poison-type Pokémon from Gen 1.",
+    subtleHint: "Become a master of all things toxic and venomous.",
     pokemon: [23, 24, 29, 30, 32, 33, 88, 89, 109, 110],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -427,6 +464,7 @@ const achievements = {
   "water-master": {
     name: "Aqua Admiral",
     description: "Guess all Water-type Pokémon from Gen 1.",
+    subtleHint: "From oceans to rivers, prove you can name all who rule the waves.",
     pokemon: [7, 8, 9, 54, 55, 60, 61, 62, 86, 90, 98, 99, 116, 117, 118, 119, 120, 121, 129, 134],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -437,6 +475,7 @@ const achievements = {
   "grass-master": {
     name: "Garden Guardian",
     description: "Guess all Grass-type Pokémon from Gen 1.",
+    subtleHint: "Show your knowledge of all who embody the power of nature.",
     pokemon: [1, 2, 3, 43, 44, 45, 69, 70, 71, 102, 103, 114],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -447,6 +486,7 @@ const achievements = {
   "bug-master": {
     name: "Bug Baron",
     description: "Guess all Bug-type Pokémon from Gen 1.",
+    subtleHint: "Often underestimated, these creatures are masters of adaptation. Can you name them all?",
     pokemon: [10, 11, 12, 13, 14, 15, 46, 47, 48, 49, 123, 127],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -458,6 +498,7 @@ const achievements = {
   "fire-master": {
     name: "Fiery Commander",
     description: "Guess all Fire-type Pokémon from Gen 1.",
+    subtleHint: "Their inner flame burns brighter than any other. Who are they?",
     pokemon: [4, 5, 6, 37, 38, 58, 59, 77, 78, 126, 136, 146],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -468,6 +509,7 @@ const achievements = {
   "psychic-master": {
     name: "Psychic Prodigy",
     description: "Guess all Psychic-type Pokémon from Gen 1.",
+    subtleHint: "They can bend spoons, and minds. Name every one of them.",
     pokemon: [63, 64, 65, 79, 80, 96, 97, 122, 124, 150, 151],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -478,6 +520,7 @@ const achievements = {
   "ground-master": {
     name: "Groundbreaker",
     description: "Guess all Ground-type Pokémon from Gen 1.",
+    subtleHint: "Prove you are a master of the earth beneath our feet.",
     pokemon: [27, 28, 50, 51, 104, 105, 111, 112],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -488,6 +531,7 @@ const achievements = {
   "rock-master": {
     name: "Rock Solid",
     description: "Guess all Rock-type Pokémon from Gen 1.",
+    subtleHint: "Show your knowledge is as solid as a rock.",
     pokemon: [74, 75, 76, 95, 138, 139, 140, 141, 142],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -498,6 +542,7 @@ const achievements = {
   "electric-master": {
     name: "Voltaic Virtuoso",
     description: "Guess all Electric-type Pokémon from Gen 1.",
+    subtleHint: "A shocking amount of power is held by these Pokémon.",
     pokemon: [25, 26, 81, 82, 100, 101, 125, 135, 145],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -508,6 +553,7 @@ const achievements = {
   "fighting-master": {
     name: "Fighting Spirit",
     description: "Guess all Fighting-type Pokémon from Gen 1.",
+    subtleHint: "Are you a master of martial arts and physical prowess?",
     pokemon: [56, 57, 66, 67, 68, 106, 107],
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -520,6 +566,7 @@ const achievements = {
   "speedrunner-600": {
     name: "Warp Speed",
     description: "Guess all 151 Pokémon in under 10 minutes.",
+    subtleHint: "Can you guess them all before your coffee gets cold?",
     pokemon: [], // Custom logic
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -531,6 +578,7 @@ const achievements = {
   "speedrunner-1200": {
     name: "Lightning Fast",
     description: "Guess all 151 Pokémon in under 20 minutes.",
+    subtleHint: "Faster than a Rapidash!",
     pokemon: [], // Custom logic
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -543,6 +591,7 @@ const achievements = {
   "speedrunner-1800": {
     name: "Speedrunner",
     description: "Guess all 151 Pokémon in under 30 minutes.",
+    subtleHint: "A respectable pace for a Pokémon journey.",
     pokemon: [], // Custom logic
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -557,6 +606,7 @@ const achievements = {
   "hints-10": {
     name: "Hint Savvy",
     description: "Guess all 151 Pokémon using 10 hints or less.",
+    subtleHint: "A little help goes a long way.",
     pokemon: [], // Custom logic
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -568,6 +618,7 @@ const achievements = {
   "hints-5": {
     name: "Economical",
     description: "Guess all 151 Pokémon using 5 hints or less.",
+    subtleHint: "You only need a nudge in the right direction.",
     pokemon: [], // Custom logic
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
@@ -580,6 +631,7 @@ const achievements = {
   "hints-0": {
     name: "Zero Hints!",
     description: "Guess all 151 Pokémon without using any hints.",
+    subtleHint: "You know the Pokédex by heart.",
     pokemon: [], // Custom logic
     icon: `
       <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
